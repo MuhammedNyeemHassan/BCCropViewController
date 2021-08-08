@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" tag="999" contentMode="center" reuseIdentifier="Cell" id="gTV-IL-0wX" customClass="NCCanvasCollectionViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="85" height="65"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="85" height="65"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="998" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="NCCanvasInstagramPostUnselected" translatesAutoresizingMaskIntoConstraints="NO" id="4S0-9O-vea">
+                        <rect key="frame" x="0.0" y="0.0" width="85" height="65"/>
+                    </imageView>
+                    <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NPg-fZ-N2B">
+                        <rect key="frame" x="0.0" y="17.5" width="2" height="30"/>
+                        <color key="backgroundColor" red="0.13725490196078433" green="0.15294117647058825" blue="0.16862745098039217" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="2" id="ZsA-Rf-tQJ"/>
+                            <constraint firstAttribute="width" secondItem="NPg-fZ-N2B" secondAttribute="height" multiplier="2:30" id="vxz-D0-ZI8"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="2"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="2tr-eE-Qf8"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="4S0-9O-vea" secondAttribute="trailing" id="CoC-Vk-R3l"/>
+                <constraint firstItem="NPg-fZ-N2B" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="FkJ-9w-Nje"/>
+                <constraint firstAttribute="bottom" secondItem="4S0-9O-vea" secondAttribute="bottom" id="foU-jm-PtN"/>
+                <constraint firstItem="NPg-fZ-N2B" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="lNc-tR-Nzg"/>
+                <constraint firstItem="4S0-9O-vea" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="z0A-r9-4cm"/>
+            </constraints>
+            <connections>
+                <outlet property="canvasCollectionViewCellImageView" destination="4S0-9O-vea" id="vwN-pI-7aQ"/>
+                <outlet property="seperator" destination="NPg-fZ-N2B" id="aPe-Gg-VBC"/>
+            </connections>
+            <point key="canvasLocation" x="52.898550724637687" y="51.897321428571423"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="NCCanvasInstagramPostUnselected" width="66" height="65"/>
+    </resources>
+</document>

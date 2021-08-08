@@ -26,6 +26,10 @@
 		6529D43B26BFACE9001A33B4 /* NCCropView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6529D42726BFACE9001A33B4 /* NCCropView.xib */; };
 		6529D43C26BFACE9001A33B4 /* NCRotationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6529D42A26BFACE9001A33B4 /* NCRotationView.xib */; };
 		6529D43D26BFACE9001A33B4 /* NCRotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529D42C26BFACE9001A33B4 /* NCRotationView.m */; };
+		6529D44126BFBEF5001A33B4 /* UIColor+Hexadecimal.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529D44026BFBEF5001A33B4 /* UIColor+Hexadecimal.m */; };
+		6529D44626BFC08B001A33B4 /* NCCanvasCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6529D44326BFC08B001A33B4 /* NCCanvasCollectionViewCell.xib */; };
+		6529D44726BFC08B001A33B4 /* NCCanvasCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529D44426BFC08B001A33B4 /* NCCanvasCollectionViewCell.m */; };
+		6529D44B26BFC0F0001A33B4 /* NCBaseDataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529D44926BFC0F0001A33B4 /* NCBaseDataModel.m */; };
 		6557FAD526BA82CE0096775D /* UIImage+Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6557FAD426BA82CE0096775D /* UIImage+Utility.m */; };
 		6557FAD926BA8BA90096775D /* BCCropLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6557FAD826BA8BA90096775D /* BCCropLayer.m */; };
 		65EF6C8326B916E600BC46F6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EF6C8226B916E600BC46F6 /* AppDelegate.m */; };
@@ -120,6 +124,14 @@
 		6529D42A26BFACE9001A33B4 /* NCRotationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NCRotationView.xib; sourceTree = "<group>"; };
 		6529D42B26BFACE9001A33B4 /* NCRotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCRotationView.h; sourceTree = "<group>"; };
 		6529D42C26BFACE9001A33B4 /* NCRotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCRotationView.m; sourceTree = "<group>"; };
+		6529D43E26BFBE20001A33B4 /* Config.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.pch; sourceTree = "<group>"; };
+		6529D43F26BFBEF5001A33B4 /* UIColor+Hexadecimal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Hexadecimal.h"; sourceTree = "<group>"; };
+		6529D44026BFBEF5001A33B4 /* UIColor+Hexadecimal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Hexadecimal.m"; sourceTree = "<group>"; };
+		6529D44326BFC08B001A33B4 /* NCCanvasCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NCCanvasCollectionViewCell.xib; sourceTree = "<group>"; };
+		6529D44426BFC08B001A33B4 /* NCCanvasCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCCanvasCollectionViewCell.m; sourceTree = "<group>"; };
+		6529D44526BFC08B001A33B4 /* NCCanvasCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCCanvasCollectionViewCell.h; sourceTree = "<group>"; };
+		6529D44926BFC0F0001A33B4 /* NCBaseDataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCBaseDataModel.m; sourceTree = "<group>"; };
+		6529D44A26BFC0F0001A33B4 /* NCBaseDataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCBaseDataModel.h; sourceTree = "<group>"; };
 		6557FAD326BA82CE0096775D /* UIImage+Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utility.h"; sourceTree = "<group>"; };
 		6557FAD426BA82CE0096775D /* UIImage+Utility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utility.m"; sourceTree = "<group>"; };
 		6557FAD726BA8BA90096775D /* BCCropLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BCCropLayer.h; sourceTree = "<group>"; };
@@ -252,6 +264,8 @@
 		6529D40A26BFACB6001A33B4 /* NCCropMenuView */ = {
 			isa = PBXGroup;
 			children = (
+				6529D44826BFC0F0001A33B4 /* NCBaseDataModel */,
+				6529D44226BFC08B001A33B4 /* NCCanvasCollectionViewCell */,
 				6529D41526BFACE9001A33B4 /* NCCropDataModel */,
 				6529D41C26BFACE9001A33B4 /* NCCropRatio.plist */,
 				6529D42526BFACE9001A33B4 /* NCCropView */,
@@ -339,9 +353,30 @@
 			path = NCRotationView;
 			sourceTree = "<group>";
 		};
+		6529D44226BFC08B001A33B4 /* NCCanvasCollectionViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				6529D44326BFC08B001A33B4 /* NCCanvasCollectionViewCell.xib */,
+				6529D44426BFC08B001A33B4 /* NCCanvasCollectionViewCell.m */,
+				6529D44526BFC08B001A33B4 /* NCCanvasCollectionViewCell.h */,
+			);
+			path = NCCanvasCollectionViewCell;
+			sourceTree = "<group>";
+		};
+		6529D44826BFC0F0001A33B4 /* NCBaseDataModel */ = {
+			isa = PBXGroup;
+			children = (
+				6529D44926BFC0F0001A33B4 /* NCBaseDataModel.m */,
+				6529D44A26BFC0F0001A33B4 /* NCBaseDataModel.h */,
+			);
+			path = NCBaseDataModel;
+			sourceTree = "<group>";
+		};
 		6557FAD226BA82980096775D /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				6529D43F26BFBEF5001A33B4 /* UIColor+Hexadecimal.h */,
+				6529D44026BFBEF5001A33B4 /* UIColor+Hexadecimal.m */,
 				6557FAD326BA82CE0096775D /* UIImage+Utility.h */,
 				6557FAD426BA82CE0096775D /* UIImage+Utility.m */,
 			);
@@ -378,6 +413,7 @@
 		65EF6C8026B916E600BC46F6 /* BCCropViewController */ = {
 			isa = PBXGroup;
 			children = (
+				6529D43E26BFBE20001A33B4 /* Config.pch */,
 				6557FAD226BA82980096775D /* Util */,
 				65EF6D3826B931CC00BC46F6 /* BCCropCanvasView */,
 				65EF6C9A26B917A600BC46F6 /* BCPicker */,
@@ -733,6 +769,7 @@
 				6529D42E26BFACE9001A33B4 /* NCFlipView.xib in Resources */,
 				6529D43526BFACE9001A33B4 /* NCCropRatio.plist in Resources */,
 				65EF6D0B26B9181A00BC46F6 /* SFProDisplay-LightItalic.ttf in Resources */,
+				6529D44626BFC08B001A33B4 /* NCCanvasCollectionViewCell.xib in Resources */,
 				65EF6D2E26B9181A00BC46F6 /* BCPicker.storyboard in Resources */,
 				65EF6D0E26B9181A00BC46F6 /* BCPPhotoPickerCell.xib in Resources */,
 				65EF6D0026B9181A00BC46F6 /* SFProDisplay-Ultralight.ttf in Resources */,
@@ -837,12 +874,15 @@
 				6529D43326BFACE9001A33B4 /* NCSkewView.m in Sources */,
 				65EF6D1226B9181A00BC46F6 /* BCPAlbumTopView.m in Sources */,
 				65EF6D2C26B9181A00BC46F6 /* PBHitService.m in Sources */,
+				6529D44726BFC08B001A33B4 /* NCCanvasCollectionViewCell.m in Sources */,
 				65EF6D2426B9181A00BC46F6 /* PBApiManager.m in Sources */,
 				6557FAD926BA8BA90096775D /* BCCropLayer.m in Sources */,
 				65EF6D2526B9181A00BC46F6 /* USApiManager.m in Sources */,
 				65EF6D1626B9181A00BC46F6 /* BCPPhotoPickerView.m in Sources */,
 				6529D42F26BFACE9001A33B4 /* NCRulerView.m in Sources */,
 				65EF6D1726B9181A00BC46F6 /* AFHTTPSessionManager+RACExtensions.m in Sources */,
+				6529D44126BFBEF5001A33B4 /* UIColor+Hexadecimal.m in Sources */,
+				6529D44B26BFC0F0001A33B4 /* NCBaseDataModel.m in Sources */,
 				65EF6D2726B9181A00BC46F6 /* USResponse.m in Sources */,
 				65EF6D1A26B9181A00BC46F6 /* BCPicker.m in Sources */,
 				6529D43126BFACE9001A33B4 /* UIRotateImageView.m in Sources */,
@@ -1004,6 +1044,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = U8DK4S4CV4;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/BCCropViewController/Config.pch";
 				INFOPLIST_FILE = BCCropViewController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1024,6 +1066,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = U8DK4S4CV4;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/BCCropViewController/Config.pch";
 				INFOPLIST_FILE = BCCropViewController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (

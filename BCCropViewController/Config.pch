@@ -1,0 +1,60 @@
+//
+//  Config.pch
+//  NoCrop
+//
+//  Created by Brain Craft Ltd. on 3/31/21.
+//
+
+#ifndef Config_pch
+#define Config_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import "UIColor+Hexadecimal.h"
+#import "NCBaseDataModel.h"
+
+
+#define TERMS_LINK  @"https://sites.google.com/a/braincraftapps.com/no-crop/home/terms"
+#define PRIVACY_LINK  @"https://sites.google.com/a/braincraftapps.com/no-crop/home/privacy"
+#define INFO_LINK  @"https://sites.google.com/a/braincraftapps.com/no-crop/info_v_1_8"
+
+#define SUB_TRIAL_ID  @"com.debotoshdey.SquareSize.monthlytrial"
+
+#define  NEW_FONT_IMPORTED @"NewFontImported"
+#define  RECENT_FONT_LIST @"RecentFontList"
+
+#define MAX_IMAGE_WIDTH 3000
+#define MAX_IMAGE_HEIGHT 4000
+
+
+#define DRAW_VIEW_HEIGHT 251.0
+#define ADJUST_VIEW_HEIGHT 170.0
+#define FOCUS_VIEW_HEIGHT 221.0
+#define MAXIMUM_TEMPLATE_LENGTH 8192
+
+#define _gAppDelegate (AppDelegate *)[[UIApplication sharedApplication] delegate]
+#define LAUNCH_COUNT @"LAUNCH_COUNT"
+#define RATIO SCREEN_WIDTH/414.0
+#define SCREEN_WIDTH [UIScreen mainScreen].bounds.size.width
+#define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
+#define SCREEN_MAX_LENGTH (MAX(SCREEN_WIDTH, SCREEN_HEIGHT))
+#define SCREEN_MIN_LENGTH (MIN(SCREEN_WIDTH, SCREEN_HEIGHT))
+#define SAFE_AREA_PADDING UIApplication.sharedApplication.keyWindow.safeAreaInsets
+
+
+#define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define IS_RETINA ([[UIScreen mainScreen] scale] >= 2.0)
+#define RETINA_SCALE [[UIScreen mainScreen] scale]
+#define IS_IPHONE_4_OR_LESS (IS_IPHONE && SCREEN_MAX_LENGTH < 568.0)
+#define IS_IPHONE_5 (IS_IPHONE && SCREEN_MAX_LENGTH == 568.0)
+#define IS_IPHONE_6 (IS_IPHONE && SCREEN_MAX_LENGTH == 667.0)
+#define IS_IPHONE_6P (IS_IPHONE && SCREEN_MAX_LENGTH == 736.0)
+#define IS_IPHONE_X  (IS_IPHONE && SCREEN_MAX_LENGTH == 812.0)
+#define IS_IPHONE_XS      (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 812.0)
+#define IS_IPHONE_X_MAX      (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height >= 896.0)
+#define M_IS_IPHONE_X (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height >= 812.0 && !IS_IPAD )
+
+
+#endif /* Config_pch */
