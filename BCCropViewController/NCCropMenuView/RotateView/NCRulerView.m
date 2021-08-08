@@ -16,7 +16,6 @@
 {
     BOOL flag;
 }
-@property (weak, nonatomic) IBOutlet UILabel *angelLabel;
 
 @end
 
@@ -125,7 +124,7 @@
 
 -(void) setLblText:(CGFloat)value withTag:(int)tag
 {
-    NSLog(@"------------------------------------%f",value);
+//    NSLog(@"------------------------------------%f",value);
     UILabel *lbl = [self viewWithTag:tag];
     
     if(value>=0){

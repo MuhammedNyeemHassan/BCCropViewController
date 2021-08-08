@@ -9,6 +9,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef enum{
+    HorizontalSkew = 0,
+    VerticalSkew,
+    Skew360,
+} SkewType;
+
+
 @interface BCCropViewController : UIViewController
 
 @property (strong, nonatomic) UIImage *selectedImage;

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		45414F0E26BFDC6800C89C2A /* asdf.png in Resources */ = {isa = PBXBuildFile; fileRef = 45414F0D26BFDC6800C89C2A /* asdf.png */; };
 		527E6F78CEFA7AA46BF17E2E /* Pods_BCCropViewController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 723D7A4F2594CF3EC41DFAF6 /* Pods_BCCropViewController.framework */; };
 		6529D40926BFA812001A33B4 /* BCCropViewController.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6529D40826BFA812001A33B4 /* BCCropViewController.xcassets */; };
 		6529D42D26BFACE9001A33B4 /* NCFlipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6529D40D26BFACE9001A33B4 /* NCFlipView.m */; };
@@ -96,6 +97,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		45414F0D26BFDC6800C89C2A /* asdf.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = asdf.png; sourceTree = "<group>"; };
 		6529D40826BFA812001A33B4 /* BCCropViewController.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = BCCropViewController.xcassets; sourceTree = "<group>"; };
 		6529D40C26BFACE9001A33B4 /* NCFlipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NCFlipView.h; sourceTree = "<group>"; };
 		6529D40D26BFACE9001A33B4 /* NCFlipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NCFlipView.m; sourceTree = "<group>"; };
@@ -414,6 +416,7 @@
 			isa = PBXGroup;
 			children = (
 				6529D43E26BFBE20001A33B4 /* Config.pch */,
+				45414F0D26BFDC6800C89C2A /* asdf.png */,
 				6557FAD226BA82980096775D /* Util */,
 				65EF6D3826B931CC00BC46F6 /* BCCropCanvasView */,
 				65EF6C9A26B917A600BC46F6 /* BCPicker */,
@@ -775,6 +778,7 @@
 				65EF6D0026B9181A00BC46F6 /* SFProDisplay-Ultralight.ttf in Resources */,
 				65EF6D1326B9181A00BC46F6 /* BCPAlbumTableViewCell.xib in Resources */,
 				65EF6D0726B9181A00BC46F6 /* SFProDisplay-Bold.ttf in Resources */,
+				45414F0E26BFDC6800C89C2A /* asdf.png in Resources */,
 				65EF6D0526B9181A00BC46F6 /* SFProDisplay-Regular.ttf in Resources */,
 				65EF6D2A26B9181A00BC46F6 /* BCPApiPhotoPickerView.xib in Resources */,
 				65EF6D3326B9181A00BC46F6 /* NCColorViewGradient.plist in Resources */,

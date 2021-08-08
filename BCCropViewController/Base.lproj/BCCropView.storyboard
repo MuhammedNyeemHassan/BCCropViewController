@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0nC-ih-DOv">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0nC-ih-DOv">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -100,6 +100,9 @@
                                                         <state key="selected">
                                                             <color key="titleColor" red="0.14901960780000001" green="0.81960784310000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </state>
+                                                        <connections>
+                                                            <action selector="showCropOptions:" destination="pzA-4K-Xer" eventType="touchUpInside" id="dsq-aU-qYD"/>
+                                                        </connections>
                                                     </button>
                                                     <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QUZ-68-B3n">
                                                         <rect key="frame" x="64" y="0.0" width="64" height="36"/>
@@ -111,6 +114,9 @@
                                                         <state key="selected">
                                                             <color key="titleColor" red="0.14901960780000001" green="0.81960784310000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </state>
+                                                        <connections>
+                                                            <action selector="showCropOptions:" destination="pzA-4K-Xer" eventType="touchUpInside" id="dsp-rJ-wVY"/>
+                                                        </connections>
                                                     </button>
                                                     <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nxs-NH-xyO">
                                                         <rect key="frame" x="128" y="0.0" width="64" height="36"/>
@@ -122,6 +128,9 @@
                                                         <state key="selected">
                                                             <color key="titleColor" red="0.14901960780000001" green="0.81960784310000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </state>
+                                                        <connections>
+                                                            <action selector="showCropOptions:" destination="pzA-4K-Xer" eventType="touchUpInside" id="Ui7-eH-qv0"/>
+                                                        </connections>
                                                     </button>
                                                     <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rl3-Ah-84m">
                                                         <rect key="frame" x="192" y="0.0" width="64" height="36"/>
@@ -133,6 +142,9 @@
                                                         <state key="selected" title="Skew">
                                                             <color key="titleColor" red="0.14901960780000001" green="0.81960784310000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </state>
+                                                        <connections>
+                                                            <action selector="showCropOptions:" destination="pzA-4K-Xer" eventType="touchUpInside" id="qDS-Rc-S3C"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <constraints>
@@ -245,12 +257,21 @@
                             <constraint firstAttribute="bottom" secondItem="Hrc-nN-LPI" secondAttribute="bottom" id="eXT-Uk-81y"/>
                             <constraint firstItem="PZM-PX-Z5h" firstAttribute="trailing" secondItem="1Lz-px-RdF" secondAttribute="trailing" id="lFO-Lz-B0R"/>
                             <constraint firstAttribute="trailing" secondItem="Hrc-nN-LPI" secondAttribute="trailing" id="np1-fU-TMe"/>
-                            <constraint firstItem="y87-7f-ccb" firstAttribute="width" secondItem="y87-7f-ccb" secondAttribute="height" multiplier="414:211" id="rGP-7e-EvQ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="rdN-BO-1mb"/>
                     <connections>
+                        <outlet property="bottomViewAspectConstraintHigh" destination="AGY-mQ-Mmd" id="wFn-8x-vc0"/>
+                        <outlet property="bottomViewAspectConstraintLow" destination="WNA-Oz-27R" id="jUK-WO-lvY"/>
+                        <outlet property="cropBtn" destination="qNI-fJ-Tg1" id="meg-Ql-O5a"/>
                         <outlet property="cropCanvasView" destination="1Lz-px-RdF" id="F13-07-hTM"/>
+                        <outlet property="flipBtn" destination="QUZ-68-B3n" id="dhz-09-OGE"/>
+                        <outlet property="optionsContainerView" destination="qwz-Xe-Jn3" id="5Ja-6M-Jgv"/>
+                        <outlet property="resetBtn" destination="bhw-tB-0ok" id="gED-ra-kuZ"/>
+                        <outlet property="rotationBtn" destination="Nxs-NH-xyO" id="jJd-mV-i2Y"/>
+                        <outlet property="rulerViewContainer" destination="z2c-Mx-Byr" id="5yh-m2-cr5"/>
+                        <outlet property="rulerViewHeightConstraint" destination="7oC-pw-TjO" id="TT9-Ja-KIU"/>
+                        <outlet property="skewBtn" destination="Rl3-Ah-84m" id="zgf-eO-rdb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Q2W-cs-7K5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

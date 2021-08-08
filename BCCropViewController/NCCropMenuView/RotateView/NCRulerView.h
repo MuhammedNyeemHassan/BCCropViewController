@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) IBOutlet NCCRRulerControl *rotateRulerView;
 @property (weak, nonatomic) IBOutlet UIView *roundView;
 @property (weak, nonatomic) IBOutlet UIView *circleView;
+@property (weak, nonatomic) IBOutlet UILabel *angelLabel;
 
 -(void) rulerSetup;
 -(void) setInitialValues;
