@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Select  Photo-->
+        <scene sceneID="fpP-K3-eqT">
+            <objects>
+                <viewController id="jb5-AB-Ytd" customClass="BCPicker" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="SOw-Cn-5iV">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X43-dc-hP9" customClass="BCMenuBarView">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="X43-dc-hP9" secondAttribute="height" multiplier="207:22" id="abI-Rc-uBX"/>
+                                </constraints>
+                            </view>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="teS-bz-hmW">
+                                <rect key="frame" x="0.0" y="44" width="414" height="764"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="xBv-6W-JXl">
+                                    <size key="itemSize" width="414" height="764"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Cell0" id="GNE-s5-G38">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="764"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Vgu-ZQ-GNI" customClass="BCPPhotoPickerView">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="764"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </collectionViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </collectionViewCell>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Cell1" id="gVi-xp-jWR">
+                                        <rect key="frame" x="414" y="0.0" width="414" height="764"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="aBa-Nf-hLn" customClass="BCPColorPickerView">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="764"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Cell2" id="vXr-20-HZE">
+                                        <rect key="frame" x="828" y="17" width="414" height="730"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="hPI-Cz-ElD" customClass="BCPApiPhotoPickerView">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="730"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="type">
+                                                    <integer key="value" value="0"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Cell3" id="kgD-xP-K1i">
+                                        <rect key="frame" x="1242" y="17" width="414" height="730"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="O3z-7T-qIk" customClass="BCPApiPhotoPickerView">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="730"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="type">
+                                                    <integer key="value" value="1"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="jb5-AB-Ytd" id="Hls-2J-L0Q"/>
+                                    <outlet property="delegate" destination="jb5-AB-Ytd" id="oKR-HG-fw5"/>
+                                </connections>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="U21-Bu-SFn"/>
+                        <color key="backgroundColor" red="0.062745098039215685" green="0.062745098039215685" blue="0.070588235294117646" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="U21-Bu-SFn" firstAttribute="trailing" secondItem="teS-bz-hmW" secondAttribute="trailing" id="4DX-e3-f6h"/>
+                            <constraint firstItem="teS-bz-hmW" firstAttribute="top" secondItem="X43-dc-hP9" secondAttribute="bottom" id="QtH-Ee-53P"/>
+                            <constraint firstItem="X43-dc-hP9" firstAttribute="top" secondItem="U21-Bu-SFn" secondAttribute="top" id="Tgi-Gi-par"/>
+                            <constraint firstItem="X43-dc-hP9" firstAttribute="leading" secondItem="U21-Bu-SFn" secondAttribute="leading" id="Tom-xU-uV8"/>
+                            <constraint firstAttribute="bottom" secondItem="teS-bz-hmW" secondAttribute="bottom" id="lcX-VX-v7l"/>
+                            <constraint firstItem="teS-bz-hmW" firstAttribute="leading" secondItem="U21-Bu-SFn" secondAttribute="leading" id="txy-f0-ZCa"/>
+                            <constraint firstItem="X43-dc-hP9" firstAttribute="trailing" secondItem="U21-Bu-SFn" secondAttribute="trailing" id="wrO-e4-HHw"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Select  Photo" id="zMb-6b-nIX">
+                        <barButtonItem key="backBarButtonItem" title="Back" id="8Sf-Ee-Hfw"/>
+                        <barButtonItem key="leftBarButtonItem" image="bcPickerDismissDownArrow" style="plain" id="ydS-ox-AWf">
+                            <connections>
+                                <action selector="downArrowPressed:" destination="jb5-AB-Ytd" id="cKn-xE-8zf"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="collectionView" destination="teS-bz-hmW" id="9cy-rl-lHD"/>
+                        <outlet property="menuBar" destination="X43-dc-hP9" id="p82-78-1TG"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DjS-Tx-eZK" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2163.768115942029" y="76.339285714285708"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="5y4-aP-RMx">
+            <objects>
+                <navigationController storyboardIdentifier="BCPickerNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="SFA-5G-x2a" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" id="960-AG-SPC"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="iey-gT-MMs">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="barTintColor" red="0.094117647058823528" green="0.098039215686274508" blue="0.10980392156862745" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <textAttributes key="titleTextAttributes">
+                            <color key="textColor" red="0.48627450980392156" green="0.53333333333333333" blue="0.56862745098039214" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        </textAttributes>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="jb5-AB-Ytd" kind="relationship" relationship="rootViewController" id="veo-8z-xqd"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pSo-CG-Eje" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1253.6231884057972" y="76.339285714285708"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="bcPickerDismissDownArrow" width="30" height="30"/>
+    </resources>
+</document>

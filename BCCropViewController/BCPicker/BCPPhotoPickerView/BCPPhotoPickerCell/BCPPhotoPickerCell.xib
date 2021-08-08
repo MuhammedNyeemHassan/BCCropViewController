@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFill" restorationIdentifier="Cell" reuseIdentifier="BCPPhotoPickerCell" id="tMV-70-Ffx" customClass="BCPPhotoPickerCell">
+            <rect key="frame" x="0.0" y="0.0" width="122" height="122"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="ZFe-6H-NPW">
+                <rect key="frame" x="0.0" y="0.0" width="122" height="122"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="999" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0Pb-Kd-B5t">
+                        <rect key="frame" x="0.0" y="0.0" width="122" height="122"/>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="0Pb-Kd-B5t" secondAttribute="bottom" id="8PJ-HZ-bJ8"/>
+                    <constraint firstItem="0Pb-Kd-B5t" firstAttribute="top" secondItem="ZFe-6H-NPW" secondAttribute="top" id="EyY-nf-MLO"/>
+                    <constraint firstItem="0Pb-Kd-B5t" firstAttribute="leading" secondItem="ZFe-6H-NPW" secondAttribute="leading" id="GtF-jh-3bt"/>
+                    <constraint firstAttribute="trailing" secondItem="0Pb-Kd-B5t" secondAttribute="trailing" id="Z8w-fR-BGf"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="122" height="122"/>
+            <connections>
+                <outlet property="photoImageView" destination="0Pb-Kd-B5t" id="MKn-yE-rC4"/>
+            </connections>
+            <point key="canvasLocation" x="-49" y="86"/>
+        </collectionViewCell>
+    </objects>
+</document>

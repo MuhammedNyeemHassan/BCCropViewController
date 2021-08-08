@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="BeVietnam-Medium.ttf">
+            <string>BeVietnam-Medium</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="ATPCustomProgressView">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nqQ-NB-EEB">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GSH-Ki-3h8">
+                    <rect key="frame" x="77" y="360.5" width="260" height="175"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yd3-0N-uhl">
+                            <rect key="frame" x="0.0" y="0.0" width="260" height="20"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Downloading" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x9T-R7-tof">
+                            <rect key="frame" x="86" y="20" width="88.5" height="17.5"/>
+                            <fontDescription key="fontDescription" name="BeVietnam-Medium" family="Be Vietnam" pointSize="15"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gHG-7r-BlN">
+                            <rect key="frame" x="50.5" y="54.5" width="159" height="3"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="3" id="YKP-2g-Ijl"/>
+                            </constraints>
+                            <color key="progressTintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="trackTintColor" red="0.23529411764705882" green="0.25490196078431371" blue="0.27843137254901962" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        </progressView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ggP-Y1-Kcv">
+                            <rect key="frame" x="42" y="68.5" width="176" height="33"/>
+                            <string key="text">Travel: Please don’t close or
+Lock your device.</string>
+                            <fontDescription key="fontDescription" name="BeVietnam-Medium" family="Be Vietnam" pointSize="14"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OnJ-9A-aCt">
+                            <rect key="frame" x="0.0" y="121.5" width="260" height="0.5"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="0.33000000000000002" id="GXw-DI-1B7"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hrj-fF-xyp">
+                            <rect key="frame" x="0.0" y="122" width="260" height="53"/>
+                            <subviews>
+                                <button opaque="NO" tag="299" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GF3-mz-OsB">
+                                    <rect key="frame" x="107" y="12" width="46" height="29"/>
+                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                    <state key="normal" title="Cancel">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="cancelDownload:" destination="iN0-l3-epB" eventType="touchUpInside" id="hg2-T1-Lso"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="GF3-mz-OsB" firstAttribute="centerY" secondItem="hrj-fF-xyp" secondAttribute="centerY" id="H6J-0q-K2S"/>
+                                <constraint firstItem="GF3-mz-OsB" firstAttribute="centerX" secondItem="hrj-fF-xyp" secondAttribute="centerX" id="hFA-N3-bEi"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" red="0.29411764705882354" green="0.31764705882352939" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstItem="OnJ-9A-aCt" firstAttribute="top" secondItem="ggP-Y1-Kcv" secondAttribute="bottom" constant="20" id="4rC-78-Pmm"/>
+                        <constraint firstItem="x9T-R7-tof" firstAttribute="top" secondItem="yd3-0N-uhl" secondAttribute="bottom" id="5YD-OF-RMj"/>
+                        <constraint firstItem="yd3-0N-uhl" firstAttribute="height" secondItem="GSH-Ki-3h8" secondAttribute="height" multiplier="0.115" id="9RM-tN-fhx"/>
+                        <constraint firstItem="yd3-0N-uhl" firstAttribute="top" secondItem="GSH-Ki-3h8" secondAttribute="top" id="AX8-13-APQ"/>
+                        <constraint firstItem="hrj-fF-xyp" firstAttribute="top" secondItem="OnJ-9A-aCt" secondAttribute="bottom" id="GKm-Pi-11f"/>
+                        <constraint firstItem="ggP-Y1-Kcv" firstAttribute="top" secondItem="gHG-7r-BlN" secondAttribute="bottom" constant="11" id="Ihw-m2-w98"/>
+                        <constraint firstAttribute="trailing" secondItem="yd3-0N-uhl" secondAttribute="trailing" id="KBY-8m-lcq"/>
+                        <constraint firstAttribute="trailing" secondItem="OnJ-9A-aCt" secondAttribute="trailing" id="M5g-RM-eSX"/>
+                        <constraint firstItem="gHG-7r-BlN" firstAttribute="centerX" secondItem="GSH-Ki-3h8" secondAttribute="centerX" id="N6E-O3-h05"/>
+                        <constraint firstItem="ggP-Y1-Kcv" firstAttribute="centerX" secondItem="GSH-Ki-3h8" secondAttribute="centerX" id="PNX-Q5-Kd5"/>
+                        <constraint firstItem="gHG-7r-BlN" firstAttribute="top" secondItem="x9T-R7-tof" secondAttribute="bottom" constant="17" id="WoG-iw-vXd"/>
+                        <constraint firstItem="hrj-fF-xyp" firstAttribute="leading" secondItem="GSH-Ki-3h8" secondAttribute="leading" id="ZxQ-hl-DVa"/>
+                        <constraint firstItem="x9T-R7-tof" firstAttribute="centerX" secondItem="GSH-Ki-3h8" secondAttribute="centerX" id="d5i-oY-xmp"/>
+                        <constraint firstAttribute="trailing" secondItem="hrj-fF-xyp" secondAttribute="trailing" id="eRe-w1-IMy"/>
+                        <constraint firstItem="gHG-7r-BlN" firstAttribute="width" secondItem="GSH-Ki-3h8" secondAttribute="width" multiplier="0.612403" id="eSE-5x-Eg8"/>
+                        <constraint firstAttribute="width" secondItem="GSH-Ki-3h8" secondAttribute="height" multiplier="260:175" id="lXn-nO-CLk"/>
+                        <constraint firstItem="yd3-0N-uhl" firstAttribute="leading" secondItem="GSH-Ki-3h8" secondAttribute="leading" id="pBe-EX-pJL"/>
+                        <constraint firstItem="OnJ-9A-aCt" firstAttribute="leading" secondItem="GSH-Ki-3h8" secondAttribute="leading" id="rVh-gX-zgc"/>
+                        <constraint firstAttribute="bottom" secondItem="hrj-fF-xyp" secondAttribute="bottom" id="sY4-5K-lHx"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="13"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="GSH-Ki-3h8" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="1fg-Wh-ACM"/>
+                <constraint firstItem="nqQ-NB-EEB" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="QBT-iU-399"/>
+                <constraint firstItem="nqQ-NB-EEB" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="jIi-oZ-rRd"/>
+                <constraint firstItem="GSH-Ki-3h8" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="l3e-7s-rcs"/>
+                <constraint firstAttribute="bottom" secondItem="nqQ-NB-EEB" secondAttribute="bottom" id="mcJ-7g-jX5"/>
+                <constraint firstItem="GSH-Ki-3h8" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.628019" id="tRc-Gu-woE"/>
+                <constraint firstAttribute="trailing" secondItem="nqQ-NB-EEB" secondAttribute="trailing" id="w0P-LO-qEB"/>
+            </constraints>
+            <connections>
+                <outlet property="messageLabel" destination="ggP-Y1-Kcv" id="9g2-w2-B5m"/>
+                <outlet property="progressHolderView" destination="GSH-Ki-3h8" id="dKf-Qc-Whu"/>
+                <outlet property="progressHolderYCenterConstraint" destination="1fg-Wh-ACM" id="xHz-4L-sVG"/>
+                <outlet property="progressIndicatorView" destination="gHG-7r-BlN" id="dEl-JT-jPT"/>
+            </connections>
+            <point key="canvasLocation" x="-17.39130434782609" y="87.723214285714278"/>
+        </view>
+    </objects>
+</document>

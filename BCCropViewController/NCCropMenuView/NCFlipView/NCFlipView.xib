@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="NCFlipView">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="106"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8B1-TB-QvK">
+                    <rect key="frame" x="144" y="19" width="126" height="68"/>
+                    <subviews>
+                        <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eQA-cQ-18I">
+                            <rect key="frame" x="0.0" y="0.0" width="48" height="68"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="eQA-cQ-18I" secondAttribute="height" multiplier="12:17" id="XAM-a3-CuS"/>
+                            </constraints>
+                            <state key="normal" image="FlipH"/>
+                            <state key="selected" image="FlipHselected"/>
+                            <connections>
+                                <action selector="horizontalFlipPressed:" destination="iN0-l3-epB" eventType="touchUpInside" id="98W-MO-zYj"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e4C-pX-YXf">
+                            <rect key="frame" x="78" y="0.0" width="48" height="68"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="e4C-pX-YXf" secondAttribute="height" multiplier="12:17" id="h1n-wk-8Nl"/>
+                            </constraints>
+                            <state key="normal" image="FlipV"/>
+                            <state key="selected" image="FlipVSelectedIconImage"/>
+                            <connections>
+                                <action selector="verticalFlipPressed:" destination="iN0-l3-epB" eventType="touchUpInside" id="wbZ-PX-mjl"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="eQA-cQ-18I" firstAttribute="top" secondItem="8B1-TB-QvK" secondAttribute="top" id="0WT-Bt-kio"/>
+                        <constraint firstItem="e4C-pX-YXf" firstAttribute="bottom" secondItem="eQA-cQ-18I" secondAttribute="bottom" id="MXA-5W-Y3x"/>
+                        <constraint firstAttribute="width" secondItem="8B1-TB-QvK" secondAttribute="height" multiplier="63:34" id="RC0-cw-0c6"/>
+                        <constraint firstItem="e4C-pX-YXf" firstAttribute="top" secondItem="eQA-cQ-18I" secondAttribute="top" id="YOC-ND-QOL"/>
+                        <constraint firstAttribute="bottom" secondItem="eQA-cQ-18I" secondAttribute="bottom" id="Zwx-Cl-gYm"/>
+                        <constraint firstItem="e4C-pX-YXf" firstAttribute="width" secondItem="e4C-pX-YXf" secondAttribute="height" multiplier="12:17" id="iVV-NS-Uwe"/>
+                        <constraint firstItem="eQA-cQ-18I" firstAttribute="leading" secondItem="8B1-TB-QvK" secondAttribute="leading" id="mte-MG-TUc"/>
+                        <constraint firstAttribute="trailing" secondItem="e4C-pX-YXf" secondAttribute="trailing" id="wnX-L7-i35"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="8B1-TB-QvK" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="126:414" id="3em-rG-GqU"/>
+                <constraint firstItem="8B1-TB-QvK" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="MF1-7K-hrJ"/>
+                <constraint firstItem="8B1-TB-QvK" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="wae-R6-6gj"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="112" y="78"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="FlipH" width="48" height="68"/>
+        <image name="FlipHselected" width="48" height="68"/>
+        <image name="FlipV" width="48" height="68"/>
+        <image name="FlipVSelectedIconImage" width="48" height="68"/>
+    </resources>
+</document>

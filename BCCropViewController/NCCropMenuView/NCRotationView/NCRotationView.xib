@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="NCRotationView">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="106"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vWm-s3-StL">
+                    <rect key="frame" x="144" y="19" width="126" height="68"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sD5-np-0Fd">
+                            <rect key="frame" x="0.0" y="0.0" width="48" height="68"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="sD5-np-0Fd" secondAttribute="height" multiplier="12:17" id="Utd-ez-e38"/>
+                            </constraints>
+                            <state key="normal" image="RotateLeft90"/>
+                            <connections>
+                                <action selector="rotateToLeftNinty:" destination="iN0-l3-epB" eventType="touchUpInside" id="9w4-JA-C3y"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SKS-Ti-j8h">
+                            <rect key="frame" x="78" y="0.0" width="48" height="68"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="SKS-Ti-j8h" secondAttribute="height" multiplier="12:17" id="hyR-Ur-b3f"/>
+                            </constraints>
+                            <state key="normal" image="RotateRightt90"/>
+                            <connections>
+                                <action selector="rotateToRightNinty:" destination="iN0-l3-epB" eventType="touchUpInside" id="akP-6B-kqX"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="SKS-Ti-j8h" firstAttribute="bottom" secondItem="sD5-np-0Fd" secondAttribute="bottom" id="4Fa-ou-4rF"/>
+                        <constraint firstAttribute="trailing" secondItem="SKS-Ti-j8h" secondAttribute="trailing" id="B2Y-YW-9yN"/>
+                        <constraint firstItem="SKS-Ti-j8h" firstAttribute="width" secondItem="SKS-Ti-j8h" secondAttribute="height" multiplier="12:17" id="HNR-tE-NaA"/>
+                        <constraint firstAttribute="width" secondItem="vWm-s3-StL" secondAttribute="height" multiplier="63:34" id="Ihd-c9-TGW"/>
+                        <constraint firstItem="sD5-np-0Fd" firstAttribute="leading" secondItem="vWm-s3-StL" secondAttribute="leading" id="RPx-Fd-LaZ"/>
+                        <constraint firstItem="SKS-Ti-j8h" firstAttribute="top" secondItem="sD5-np-0Fd" secondAttribute="top" id="U10-fM-7a9"/>
+                        <constraint firstAttribute="bottom" secondItem="sD5-np-0Fd" secondAttribute="bottom" id="uTv-ni-io8"/>
+                        <constraint firstItem="sD5-np-0Fd" firstAttribute="top" secondItem="vWm-s3-StL" secondAttribute="top" id="xeK-Zs-3C4"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="vWm-s3-StL" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="126:414" id="0Ax-AT-zie"/>
+                <constraint firstItem="vWm-s3-StL" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="1B4-VT-Trs"/>
+                <constraint firstItem="vWm-s3-StL" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="zgq-sK-Imp"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="141" y="-54"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="RotateLeft90" width="48" height="68"/>
+        <image name="RotateRightt90" width="48" height="68"/>
+    </resources>
+</document>
