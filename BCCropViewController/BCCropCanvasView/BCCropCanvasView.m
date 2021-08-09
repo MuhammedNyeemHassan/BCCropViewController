@@ -329,6 +329,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [CATransaction setDisableActions:YES];
         _imageLayer.frame = scaledFrame;
         [CATransaction commit];
+        
+        zoomScale = sender.scale;
     }
 }
 
@@ -531,15 +533,17 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _imageLayer.affineTransform = CGAffineTransformRotate(_imageLayer.affineTransform, deltaAngle);
     CGPoint center = _imageLayer.position;
     
-    CGFloat width = fabs(cos(rotationAngle)) * _cropLayer.frame.size.width + fabs(sin(rotationAngle)) * _cropLayer.frame.size.height;
-    CGFloat height = fabs(sin(rotationAngle)) * _cropLayer.frame.size.width + fabs(cos(rotationAngle)) * _cropLayer.frame.size.height;
+    CGRect scaledFrame = [self calculateImageLayerScaledFrame:_cropLayer.frame scale:zoomScale anchorPoint:imageLayerCurrentAnchorPosition];
+    
+    CGFloat width = fabs(cos(rotationAngle)) * scaledFrame.size.width + fabs(sin(rotationAngle)) * _cropLayer.frame.size.height;
+    CGFloat height = fabs(sin(rotationAngle)) * scaledFrame.size.width + fabs(cos(rotationAngle)) * _cropLayer.frame.size.height;
 
-    if (_cropLayer.bounds.size.width >= height) {
-        width = width * (width / _cropLayer.frame.size.width);
+    if (scaledFrame.size.width >= height) {
+        width = width * (width / scaledFrame.size.width);
         height = width * _fitImageFrame.size.height / _fitImageFrame.size.width;
     }
     else {
-        height = height * (height / _cropLayer.frame.size.width);
+        height = height * (height / scaledFrame.size.width);
         width = height * _fitImageFrame.size.width / _fitImageFrame.size.height;
     }
     
