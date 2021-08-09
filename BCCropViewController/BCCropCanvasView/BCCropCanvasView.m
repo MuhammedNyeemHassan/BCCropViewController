@@ -35,8 +35,15 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     CGFloat zoomScale;
     CGFloat rotationAngle;
-    CGFloat skewAngle;
+    
+    CGFloat skewAngleH;
+    CGFloat skewAngleV;
+    
+    CIImage *filterImage;
+    CGPoint imageTopRightPoint, imageTopLeftPoint, imageBottomLeftPoint,imageBottomRightPoint;
+    CAShapeLayer *shapeLayer;
 }
+@property (strong, nonatomic) CIContext *context;
 
 @property (strong, nonatomic) CALayer *imageLayerContainerLayer;
 @property (strong, nonatomic) CALayer *imageLayer;
@@ -72,7 +79,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     self.backgroundColor = UIColor.darkGrayColor;
     self.clipsToBounds = YES;
-    
+    self.context = [CIContext context];
     [self prepareImageLayerContainerLayer];
     [self prepareImageLayer];
     [self prepareCropLayer];
@@ -97,6 +104,24 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _inputImage = inputImage;
     
     _imageLayer.contents = (__bridge id)[_inputImage createCGImageRef];
+    [self setImageCornerPoints];
+}
+
+- (void)setImageCornerPoints {
+    
+    CGFloat zoomOffset = zoomScale - 1;
+    CGFloat xOffset = (CGRectGetWidth(_imageLayer.frame) * zoomOffset) / 2.0;
+    CGFloat yOffset = (CGRectGetWidth(_imageLayer.frame) * zoomOffset) / 2.0;
+    
+    imageTopLeftPoint = CGPointMake(0, _inputImage.size.height);
+    imageTopRightPoint = CGPointMake(_inputImage.size.width, _inputImage.size.height);
+    imageBottomLeftPoint = CGPointMake(0, 0);
+    imageBottomRightPoint = CGPointMake(_inputImage.size.width, 0);
+
+//    imageTopLeftPoint = CGPointMake(0, CGRectGetHeight(_imageLayer.frame));
+//    imageTopRightPoint = CGPointMake(CGRectGetWidth(_imageLayer.frame), CGRectGetHeight(_imageLayer.frame));
+//    imageBottomLeftPoint = CGPointMake(0, 0);
+//    imageBottomRightPoint = CGPointMake(CGRectGetWidth(_imageLayer.frame), 0);
 }
 
 //MARK:- Prepare Layers
@@ -112,7 +137,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 - (void)prepareImageLayer {
     
     _imageLayer = [[CALayer alloc] init];
-    _imageLayer.contentsGravity = kCAGravityResizeAspect;
+    _imageLayer.contentsGravity = kCAGravityResizeAspectFill;
     _imageLayer.backgroundColor = UIColor.blackColor.CGColor;
     
     [_imageLayerContainerLayer addSublayer:_imageLayer];
@@ -554,5 +579,155 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
     [CATransaction commit];
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
+}
+
+- (void)applySkewInImage:(UIImage *)image
+{
+    filterImage = [[CIImage alloc] initWithImage:image];
+    CGRect cropRect = CGRectZero;
+    if(image.size.width > image.size.height)
+    {
+        cropRect.size = CGSizeMake(image.size.height, image.size.height);
+        cropRect.origin = CGPointMake((image.size.width - image.size.height) / 2, 0);
+    }
+    else
+    {
+        cropRect.size = CGSizeMake(image.size.width, image.size.width);
+        cropRect.origin = CGPointMake(0, (image.size.height - image.size.width) / 2);
+    }
+//    filterImage = [filterImage imageByCroppingToRect:cropRect];
+    
+    CIFilter *perspectiveFilter = [CIFilter filterWithName:@"CIPerspectiveTransform"];
+    [perspectiveFilter setValue:filterImage forKey:@"inputImage"];
+    CIVector *vectorTL = [CIVector vectorWithCGPoint:imageTopLeftPoint];
+    CIVector *vectorTR = [CIVector vectorWithCGPoint:imageTopRightPoint];
+    CIVector *vectorBR = [CIVector vectorWithCGPoint:imageBottomRightPoint];
+    CIVector *vectorBL = [CIVector vectorWithCGPoint:imageBottomLeftPoint];
+    [perspectiveFilter setValue:vectorTL forKey:@"inputTopLeft"];
+    [perspectiveFilter setValue:vectorTR forKey:@"inputTopRight"];
+    [perspectiveFilter setValue:vectorBR forKey:@"inputBottomRight"];
+    [perspectiveFilter setValue:vectorBL forKey:@"inputBottomLeft"];
+    filterImage = [perspectiveFilter outputImage];
+
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    _imageLayer.contents = CFBridgingRelease([self.context createCGImage:filterImage fromRect:filterImage.extent]);
+    [CATransaction commit];
+    
+    if(image)
+    {
+        if(shapeLayer)
+        {
+            [shapeLayer removeFromSuperlayer];
+            shapeLayer = nil;
+        }
+        
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        shapeLayer = [CAShapeLayer layer];
+        shapeLayer.geometryFlipped = YES;
+        shapeLayer.frame = _imageLayer.bounds;
+        shapeLayer.position = _imageLayer.position;
+        
+        CGFloat scaleX = shapeLayer.frame.size.width / _inputImage.size.width;
+        CGFloat scaleY = shapeLayer.frame.size.height / _inputImage.size.height;
+        CGAffineTransform transform = CGAffineTransformMakeScale(scaleX, scaleY);
+        CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, transform);
+        CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, transform);
+        CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, transform);
+        CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, transform);
+        UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
+        [bezierPath moveToPoint:bl];
+        [bezierPath addLineToPoint:tl];
+        [bezierPath addLineToPoint:tr];
+        [bezierPath addLineToPoint:br];
+        [bezierPath closePath];
+        
+        shapeLayer.path = bezierPath.CGPath;
+        shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
+        [_imageLayerContainerLayer addSublayer:shapeLayer];
+        [CATransaction commit];
+        
+//        [self isRectVisibleWithBottomLeft:bl topLeft:tl topRight:tr bottomRight:br inRect:CGRectApplyAffineTransform(self.parentView.bounds, CGAffineTransformMakeRotation(rotationAngle))];
+    }
+}
+
+- (CGRect)convertedSizeForView:(UIView *)toView fromImage:(UIImage *)fromImage
+{
+    CGSize imageSize = fromImage.size;
+    CGPoint origin = CGPointZero;
+    if(imageSize.height > imageSize.width)
+    {
+        imageSize.height = imageSize.height / imageSize.width * toView.bounds.size.width;
+        imageSize.width = toView.bounds.size.width;
+        
+        origin.y = (toView.bounds.size.height - imageSize.height) / 2.0;
+    }
+    else
+    {
+        imageSize.width = imageSize.width / imageSize.height * toView.bounds.size.height;
+        imageSize.height = toView.bounds.size.height;
+        origin.x = (toView.bounds.size.width - imageSize.width) / 2.0;
+    }
+    
+    return CGRectMake(origin.x, origin.y, imageSize.width, imageSize.height);
+}
+
+- (void)skewImageLayerHorizontally:(CGFloat)skewAngle {
+    
+    skewAngleH = skewAngle / 10.0;
+    
+    CGFloat value = skewAngle;
+    value = value / 200 * _inputImage.size.height;
+    if(value >= 0)
+    {
+        CGPoint currentPoint = imageTopRightPoint;
+        currentPoint.y = _inputImage.size.height + value;
+        imageTopRightPoint = currentPoint;
+        
+        currentPoint = imageBottomRightPoint;
+        currentPoint.y = (value * -1);
+        imageBottomRightPoint = currentPoint;
+    }
+    else
+    {
+        CGPoint currentPoint = imageTopLeftPoint;
+        currentPoint.y = _inputImage.size.height - value;
+        imageTopLeftPoint = currentPoint;
+        
+        currentPoint = imageBottomLeftPoint;
+        currentPoint.y = value;
+        imageBottomLeftPoint = currentPoint;
+    }
+    [self applySkewInImage:_inputImage];
+}
+
+- (void)skewImageLayerVertically:(CGFloat)skewAngle {
+    
+    skewAngleV = skewAngle / 10.0;
+    
+    CGFloat value = skewAngle;
+    value = value / 200 * _inputImage.size.width;
+    if(value >= 0)
+    {
+        CGPoint currentPoint = imageBottomLeftPoint;
+        currentPoint.x = (value * -1);
+        imageBottomLeftPoint = currentPoint;
+        
+        currentPoint = imageBottomRightPoint;
+        currentPoint.x = _inputImage.size.width + value;
+        imageBottomRightPoint = currentPoint;
+    }
+    else
+    {
+        CGPoint currentPoint = imageTopLeftPoint;
+        currentPoint.x = value;
+        imageTopLeftPoint = currentPoint;
+        
+        currentPoint = imageTopRightPoint;
+        currentPoint.x = _inputImage.size.width - value;
+        imageTopRightPoint = currentPoint;
+    }
+    [self applySkewInImage:_inputImage];
 }
 @end

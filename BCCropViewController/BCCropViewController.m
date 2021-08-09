@@ -213,7 +213,8 @@
         NSString *str =  [[NSNumber numberWithInt:(int)0] stringValue];
         str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
         rulerView.angleText = str;
-
+        [rulerView setIsSkew:YES];
+        [rulerView.rotateRulerView setValue:0];
     }
     rulerView.alpha = 1.0;
     rulerView.frame = rulerViewContainer.bounds;
@@ -348,8 +349,12 @@
     if ((rValues <= 0.1 && rValues >= -0.1) || rValues >= 180.0f ||rValues <= -180.0f) {
         [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
     }
-    
-    [_cropCanvasView rotateImageLayer:rValues];
+    if(skewType == Skew360)
+        [_cropCanvasView rotateImageLayer:rValues];
+    else if(skewType == HorizontalSkew)
+        [_cropCanvasView skewImageLayerHorizontally:rValues];
+    else
+        [_cropCanvasView skewImageLayerVertically:rValues];
 }
 
 -(void)update{
