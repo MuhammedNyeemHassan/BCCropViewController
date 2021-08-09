@@ -25,7 +25,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 @interface BCCropCanvasView () {
     
     CGPoint initialLocation;
-    CGPoint lastPosition;
     
     CGRect initialCropLayerFrame;
     BOOL cropCornerSelected;
@@ -36,10 +35,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     CGFloat zoomScale;
     CGFloat rotationAngle;
-    CGFloat skewAngleH;
-    CGFloat skewAngleV;
-    
-    CGPoint imageTopRightPoint, imageTopLeftPoint, imageBottomLeftPoint,imageBottomRightPoint;
+    CGFloat skewAngle;
 }
 
 @property (strong, nonatomic) CALayer *imageLayerContainerLayer;
@@ -93,9 +89,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         _fitImageFrame = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, CGRectMake(kMinimumCropAreaInset, kMinimumCropAreaInset, (self.bounds.size.width - (kMinimumCropAreaInset * 2.0)), (self.bounds.size.height - (kMinimumCropAreaInset * 2.0))));
         [self resetImageLayerFrame];
         [self resetCropLayerFrame];
-        
-        zoomScale = 1.0;
-        [self setImageCornerPoints];
     }
 }
 
@@ -104,18 +97,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _inputImage = inputImage;
     
     _imageLayer.contents = (__bridge id)[_inputImage createCGImageRef];
-}
-
-- (void)setImageCornerPoints {
-    
-    CGFloat zoomOffset = zoomScale - 1;
-    CGFloat xOffset = (CGRectGetWidth(_imageLayer.frame) * zoomOffset) / 2.0;
-    CGFloat yOffset = (CGRectGetWidth(_imageLayer.frame) * zoomOffset) / 2.0
-    
-    imageTopLeftPoint = CGPointMake(0, 0);
-    imageTopRightPoint = CGPointMake(CGRectGetWidth(_imageLayer.frame), 0);
-    imageBottomLeftPoint = CGPointMake(0, CGRectGetHeight(_imageLayer.frame));
-    imageBottomRightPoint = CGPointMake(CGRectGetWidth(_imageLayer.frame), CGRectGetHeight(_imageLayer.frame));
 }
 
 //MARK:- Prepare Layers
@@ -276,59 +257,40 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             }
             
             CGPoint newOrigin = _imageLayer.frame.origin;
-            CGPoint newPosition = _imageLayer.position;
             
-            if (!rotationAngle && !skewAngleH && !skewAngleV) {
-                if ([self canImageLayerMoveHorizontally:translation.x]) {
-                    newOrigin.x = newOrigin.x + translation.x;
-                }
-                else { //For removing lagging in speedy pan
-                    if (velocity.x != 0) {
-                        if(velocity.x > 0) { //Moving right
-                            newOrigin.x = _cropLayer.frame.origin.x;
-                        }
-                        else //Moving left
-                        {
-                            newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - _imageLayer.frame.size.width;
-                        }
+            if ([self canImageLayerMoveHorizontally:translation.x]) {
+                newOrigin.x = newOrigin.x + translation.x;
+            }
+            else { //For removing lagging in speedy pan
+                if (velocity.x != 0) {
+                    if(velocity.x > 0) { //Moving right
+                        newOrigin.x = _cropLayer.frame.origin.x;
                     }
-                }
-                
-                if ([self canImageLayerMoveVertically:translation.y]) {
-                    newOrigin.y = newOrigin.y + translation.y;
-                }
-                else { //For removing lagging in speedy pan
-                    if (velocity.y != 0) {
-                        if(velocity.y > 0) { //Moving down
-                            newOrigin.y = _cropLayer.frame.origin.y;
-                        }
-                        else //Moving up
-                        {
-                            newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;
-                        }
+                    else //Moving left
+                    {
+                        newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - _imageLayer.frame.size.width;
                     }
                 }
             }
-            else {
-                if ([self isWithinScrollArea]) {
-                    newPosition.x = newPosition.x + translation.x;
-                    newPosition.y = newPosition.y + translation.y;
-                    lastPosition = newPosition;
-                }
-                else {
-                    newPosition = lastPosition;
+            
+            if ([self canImageLayerMoveVertically:translation.y]) {
+                newOrigin.y = newOrigin.y + translation.y;
+            }
+            else { //For removing lagging in speedy pan
+                if (velocity.y != 0) {
+                    if(velocity.y > 0) { //Moving down
+                        newOrigin.y = _cropLayer.frame.origin.y;
+                    }
+                    else //Moving up
+                    {
+                        newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;
+                    }
                 }
             }
             
             [CATransaction begin];
             [CATransaction setDisableActions:YES];
-            
-            if (!rotationAngle && !skewAngleH && !skewAngleV) {
             _imageLayer.frame = CGRectMake(newOrigin.x, newOrigin.y, _imageLayer.frame.size.width, _imageLayer.frame.size.height);
-            }
-            else {
-                _imageLayer.position = newPosition;
-            }
             [CATransaction commit];
         }
         
@@ -361,18 +323,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     if (sender.state == UIGestureRecognizerStateBegan || sender.state == UIGestureRecognizerStateChanged) {
         
-//        CGPoint position = _imageLayer.position;
-//        CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:sender.scale anchorPoint:imageLayerCurrentAnchorPosition];
+        CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:sender.scale anchorPoint:imageLayerCurrentAnchorPosition];
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
-        
-        zoomScale = sender.scale;
-        [self applyAllRotation];
-        [self setImageCornerPoints];
+        _imageLayer.frame = scaledFrame;
         [CATransaction commit];
-        
-        
     }
 }
 
@@ -434,7 +390,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     return CGRectMake(newOrigin.x, newOrigin.y, newWidth, newHeight);
 }
-    
+
 //MARK:- Resize Layers After Crop Corner Drag
 - (void)resizeLayersAfterCropLayerCornerDrag {
     
@@ -462,12 +418,39 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _imageLayer.frame = scaledImageLayerFrame;
     
     [_cropLayer setShouldAnimateResizing:NO];
-    
-    [self setImageCornerPoints];
 }
 
 //MARK:- Image Layer Position Check
 - (BOOL)canImageLayerMoveHorizontally:(CGFloat)xDistance {
+    
+    if (rotationAngle != 0) {
+        
+        //Crop top edge line points (Screen edge to edge)
+        CGPoint topLineLeftPoint = CGPointMake(0, _cropLayer.frame.origin.y);
+        CGPoint topLineRightPoint = CGPointMake(self.layer.bounds.size.width, _cropLayer.frame.origin.y);
+        
+        //Crop bottom edge line points (Screen edge to edge)
+        CGPoint bottomLineLeftPoint = CGPointMake(0, _cropLayer.frame.origin.y + _cropLayer.frame.size.height);
+        CGPoint bottomLineRightPoint = CGPointMake(self.layer.bounds.size.width, _cropLayer.frame.origin.y + _cropLayer.frame.size.height);
+        
+        //Convert imageLayer bound points to imageContainer coordinate points
+        //Left bound points
+        CGPoint imageTopLeftPoint = [_imageLayerContainerLayer convertPoint:CGPointMake(0, 0) fromLayer:_imageLayer];
+        CGPoint imageBottomLeftPoint = [_imageLayerContainerLayer convertPoint:CGPointMake(0, _imageLayer.bounds.size.height) fromLayer:_imageLayer];
+        //Right bound point
+        CGPoint imageTopRightPoint = [_imageLayerContainerLayer convertPoint:CGPointMake(_imageLayer.bounds.size.width, 0) fromLayer:_imageLayer];
+        CGPoint imageBottomRightPoint = [_imageLayerContainerLayer convertPoint:CGPointMake(_imageLayer.bounds.size.width, _imageLayer.bounds.size.height) fromLayer:_imageLayer];
+        
+        if (rotationAngle > 0) {
+            if (rotationAngle < 90) {
+                
+                
+            }
+        }
+        else {
+            
+        }
+    }
     
     CGFloat newOriginX = _imageLayer.frame.origin.x + xDistance;
     
@@ -482,34 +465,26 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 }
 
 //MARK:- Crop layer Position Check
--(BOOL)isWithinScrollArea{
+- (void)canCropLayerResizeHorizontally {
     
-    CGPoint cropViewTopLeftCorner = CGPointMake(0, 0);
-    CGPoint cropViewTopRightCorner = CGPointMake(CGRectGetWidth(_cropLayer.frame), 0);
-    CGPoint cropViewBottomRightCorner = CGPointMake(CGRectGetWidth(_cropLayer.frame), CGRectGetHeight(_cropLayer.frame));
-    CGPoint cropViewBottomLeftCorner = CGPointMake(0, CGRectGetHeight(_cropLayer.frame));
-    
-    cropViewTopLeftCorner = [_cropLayer convertPoint:cropViewTopLeftCorner toLayer:_imageLayer];
-    cropViewTopRightCorner = [_cropLayer convertPoint:cropViewTopRightCorner toLayer:_imageLayer];
-    cropViewBottomRightCorner = [_cropLayer convertPoint:cropViewBottomRightCorner toLayer:_imageLayer];
-    cropViewBottomLeftCorner = [_cropLayer convertPoint:cropViewBottomLeftCorner toLayer:_imageLayer];
-    
-    UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
-    [bezierPath moveToPoint:imageTopLeftPoint];
-    [bezierPath addLineToPoint:imageTopRightPoint];
-    [bezierPath addLineToPoint:imageBottomRightPoint];
-    [bezierPath addLineToPoint:imageBottomLeftPoint];
-    [bezierPath closePath];
-    
-    BOOL iscropViewTopLeftCorner = [bezierPath containsPoint:cropViewTopLeftCorner];
-    BOOL iscropViewTopRightCorner = [bezierPath containsPoint:cropViewTopRightCorner];
-    BOOL iscropViewBottomRightCorner = [bezierPath containsPoint:cropViewBottomRightCorner];
-    BOOL iscropViewBottomLeftCorner = [bezierPath containsPoint:cropViewBottomLeftCorner];
-    
-    return  iscropViewTopLeftCorner && iscropViewTopRightCorner && iscropViewBottomRightCorner && iscropViewBottomLeftCorner;
 }
 
-//MARK:- Intersection calculation
+- (void)isLayerSurroundedByLayer:(CALayer *)layer surroundingLayer:(CALayer *)surroundingLayer {
+    
+    CGPoint imageLayerUpperLeftPoint = CGPointZero;
+    CGPoint imageLayerUpperRightPoint = CGPointMake(_imageLayer.bounds.size.width, 0);
+    CGPoint imageLayerLowerLeftPoint = CGPointMake(0, _imageLayer.bounds.size.height);
+    CGPoint imageLayerLowerRightPoint = CGPointMake(_imageLayer.bounds.size.width, _imageLayer.bounds.size.height);
+    
+    CGPoint convertedUpperLeft = [_cropLayer convertPoint:imageLayerUpperLeftPoint fromLayer:_imageLayer];
+    CGPoint convertedUpperRight = [_cropLayer convertPoint:imageLayerUpperRightPoint fromLayer:_imageLayer];
+    CGPoint convertedLowerLeft = [_cropLayer convertPoint:imageLayerLowerLeftPoint fromLayer:_imageLayer];
+    CGPoint convertedLowerRight = [_cropLayer convertPoint:imageLayerLowerRightPoint fromLayer:_imageLayer];
+    
+    
+//    return ;
+}
+
 -(BOOL)checkLineIntersection:(CGPoint)p1 :(CGPoint)p2 :(CGPoint)p3 :(CGPoint)p4
 {
     CGFloat denominator = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
@@ -548,68 +523,32 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     CGFloat radian = angle * M_PI / 180.0;
     rotationAngle = radian;
+    CGFloat deltaAngle = radian - CGAffineTransformGetAngle(_imageLayer.affineTransform);
     
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    [self applyAllRotation];
+    _imageLayer.affineTransform = CGAffineTransformRotate(_imageLayer.affineTransform, deltaAngle);
+    CGPoint center = _imageLayer.position;
     
-//    if ([self isWithinScrollArea]) {
-//    CGPoint center = _imageLayer.position;
-//
-//        CGRect scaledFrame = [self calculateImageLayerScaledFrame:_cropLayer.frame scale:zoomScale anchorPoint:imageLayerCurrentAnchorPosition];
-//
-//        CGFloat width = fabs(cos(rotationAngle)) * scaledFrame.size.width + fabs(sin(rotationAngle)) * scaledFrame.size.height;
-//        CGFloat height = fabs(sin(rotationAngle)) * scaledFrame.size.width + fabs(cos(rotationAngle)) * scaledFrame.size.height;
-//
-//        if (scaledFrame.size.width >= height) {
-//            width = width * (width / scaledFrame.size.width);
-//            height = width * _fitImageFrame.size.height / _fitImageFrame.size.width;
-//        }
-//        else {
-//            height = height * (height / scaledFrame.size.width);
-//            width = height * _fitImageFrame.size.width / _fitImageFrame.size.height;
-//        }
-//
-//        _imageLayer.bounds = CGRectMake(0, 0, width, height);
-//        _imageLayer.position = center;
-//        [self setImageCornerPoints];
-//    }
+    CGFloat width = fabs(cos(rotationAngle)) * _cropLayer.frame.size.width + fabs(sin(rotationAngle)) * _cropLayer.frame.size.height;
+    CGFloat height = fabs(sin(rotationAngle)) * _cropLayer.frame.size.width + fabs(cos(rotationAngle)) * _cropLayer.frame.size.height;
+
+    if (_cropLayer.bounds.size.width >= height) {
+        width = width * (width / _cropLayer.frame.size.width);
+        height = width * _fitImageFrame.size.height / _fitImageFrame.size.width;
+    }
+    else {
+        height = height * (height / _cropLayer.frame.size.width);
+        width = height * _fitImageFrame.size.width / _fitImageFrame.size.height;
+    }
+    
+    
+    
+    _imageLayer.bounds = CGRectMake(0, 0, width, height);
+    _imageLayer.position = center;
 
     [CATransaction commit];
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
-    
-    NSLog(@"%ld", [self isWithinScrollArea]);
-}
-
-- (void)applyAllRotation {
-    
-    CATransform3D transform = CATransform3DIdentity;
-    
-    transform = CATransform3DScale(transform, zoomScale, zoomScale, 1);
-    
-    transform.m34 = -0.01;
-    transform = CATransform3DRotate(transform, rotationAngle, 0, 0, 1);
-    
-    if (skewAngleH !=0) {
-        transform = CATransform3DRotate(transform, skewAngleH * M_PI / 180.0, 0, 1, 0);
-    }
-    if (skewAngleV !=0) {
-        transform = CATransform3DRotate(transform, skewAngleV * M_PI / 180.0, 1, 0, 0);
-    }
-    
-    _imageLayer.transform = transform;
-}
-
-- (void)skewImageLayerHorizontally:(CGFloat)skewAngle {
-    
-    skewAngleH = skewAngle / 10.0;
-    [self applyAllRotation];
-}
-
-- (void)skewImageLayerVertically:(CGFloat)skewAngle {
-    
-    skewAngleV = skewAngle / 10.0;
-    [self applyAllRotation];
 }
 @end

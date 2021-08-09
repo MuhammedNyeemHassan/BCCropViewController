@@ -339,36 +339,17 @@
 
 -(void)setAdjustRotate:(CGFloat)rValues{
     
+    
     NSLog(@"rotate 360***%f",rValues);
     NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
     str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
     rulerView.angleText = str;
-    if (skewView.alpha) {
-        
-        switch (skewType) {
-            case HorizontalSkew:
-                [_cropCanvasView skewImageLayerHorizontally:rValues];
-                break;
-            case VerticalSkew:
-                [_cropCanvasView skewImageLayerVertically:rValues];
-                break;
-            case Skew360:
-                skew360 = rValues;
-                [_cropCanvasView rotateImageLayer:rValues];
-                break;
-            default:
-                break;
-        }
+    skew360 = rValues;
+    if ((rValues <= 0.1 && rValues >= -0.1) || rValues >= 180.0f ||rValues <= -180.0f) {
+        [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
     }
-    else {
-        
-        skew360 = rValues;
-        if ((rValues <= 0.1 && rValues >= -0.1) || rValues >= 180.0f ||rValues <= -180.0f) {
-            [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
-        }
-        
-        [_cropCanvasView rotateImageLayer:rValues];
-    }
+    
+    [_cropCanvasView rotateImageLayer:rValues];
 }
 
 -(void)update{
@@ -377,55 +358,9 @@
 
 
 -(void) rotateClockWise:(BOOL)flag{
-    
-    if(flag) {
-        skew360 =rulerView.rotateRulerView.value;
-        for(int i=-180;i<=rulerView.rotateRulerView.value;i++){
-            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            rulerView.angleText = str;
-            [self setAdjustRotate:i];
-        }
-        NCCRRulerControl *ruler =rulerView.rotateRulerView;
-        [ruler setValue:rulerView.changedValue animated:YES];
-    }
-    else {
-        skew360 =rulerView.rotateRulerView.value;
-        for(int i=rulerView.rotateRulerView.value;i<=skew360;i++){
-            
-            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            rulerView.angleText = str;
-            [self setAdjustRotate:i];
-        }
-    }
 }
 
 -(void) rotateAntiClockWise:(BOOL)flag{
-    
-    if(flag){
-        skew360 =rulerView.rotateRulerView.value;
-        for(int i=180;i>=rulerView.rotateRulerView.value;i--){
-            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            [self setAdjustRotate:i];
-        }
-
-        NCCRRulerControl *ruler =rulerView.rotateRulerView;
-        [ruler setValue:rulerView.changedValue animated:YES];
-    }
-    else {
-        NSLog(@"ROTATING ANTI CLOCKWISE");
-        
-        skew360 = rulerView.rotateRulerView.value;
-        for(int i=rulerView.rotateRulerView.value;i>=skew360;i--){
-            NSLog(@"Moving");
-            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            rulerView.angleText = str;
-            [self setAdjustRotate:i];
-        }
-    }
 }
 
 
