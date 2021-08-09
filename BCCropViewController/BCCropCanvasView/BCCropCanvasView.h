@@ -13,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) UIImage *inputImage;
 
+- (void)rotateImageLayer:(CGFloat)angle;
+- (void)skewImageLayerHorizontally:(CGFloat)skewAngle;
+- (void)skewImageLayerVertically:(CGFloat)skewAngle;
 @end
 
 NS_ASSUME_NONNULL_END

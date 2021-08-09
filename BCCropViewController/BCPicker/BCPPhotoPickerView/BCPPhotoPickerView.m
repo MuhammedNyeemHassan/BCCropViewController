@@ -371,22 +371,26 @@
             };
             
             requestID += [[PHImageManager defaultManager] requestImageForAsset:cell.photoAsset targetSize:CGSizeMake(cell.photoAsset.pixelWidth, cell.photoAsset.pixelHeight) contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
-                if (result != nil && [self.delegate respondsToSelector:@selector(pickerDidSelectImage:)]) {
-                    [self.delegate pickerDidSelectImage:result];
-                    [ATPCustomProgressView removeLoadingView];
-                }
                 
-                if (info[PHImageErrorKey]) {
-                    NSError *error = info[PHImageErrorKey];
-                    if (error.code == NSURLErrorNotConnectedToInternet) {
-                        UIAlertController *noInternetAlert = [UIAlertController alertControllerWithTitle:@"No Internet!" message:@"Please connect to internet to download image." preferredStyle:UIAlertControllerStyleAlert];
-                        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Done" style:UIAlertActionStyleCancel handler:nil];
-                        
-                        [noInternetAlert addAction:ok];
-                        [((BCPicker*)self->_delegate) presentViewController:noInternetAlert animated:true completion:nil];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    if (result != nil && [self.delegate respondsToSelector:@selector(pickerDidSelectImage:)]) {
+                        [self.delegate pickerDidSelectImage:result];
+                        [ATPCustomProgressView removeLoadingView];
                     }
-                }
-                isProcessing = NO;
+                    
+                    if (info[PHImageErrorKey]) {
+                        NSError *error = info[PHImageErrorKey];
+                        if (error.code == NSURLErrorNotConnectedToInternet) {
+                            UIAlertController *noInternetAlert = [UIAlertController alertControllerWithTitle:@"No Internet!" message:@"Please connect to internet to download image." preferredStyle:UIAlertControllerStyleAlert];
+                            UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Done" style:UIAlertActionStyleCancel handler:nil];
+                            
+                            [noInternetAlert addAction:ok];
+                            [((BCPicker*)self->_delegate) presentViewController:noInternetAlert animated:true completion:nil];
+                        }
+                    }
+                    isProcessing = NO;
+                });
             }];
         }
     }
