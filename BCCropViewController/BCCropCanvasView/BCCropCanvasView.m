@@ -175,24 +175,22 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)resetShapeLayerPath {
     
-        CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
-        CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
-        CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
-        CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
-     bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
-     tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
-     tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
-     br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
+    CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
+    CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
+    CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
+    CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
+    
+    CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
+    CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
+    CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
+    CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
     
     CGPoint poinstArray[] = {bl, tl, tr, br};
     CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
     
-    CGPoint currentPosition = _imageLayer.position;
-    shapeLayer.bounds = CGRectMake(0, 0, smallestRect.size.width, smallestRect.size.height);
-    shapeLayer.position = currentPosition;
-    _imageLayer.bounds = shapeLayer.bounds;
-    _imageLayer.position = currentPosition;
-    
+    shapeLayer.bounds = smallestRect;
+    shapeLayer.position = _imageLayer.position;
+
     UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
     [bezierPath moveToPoint:bl];
     [bezierPath addLineToPoint:tl];
@@ -200,6 +198,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [bezierPath addLineToPoint:br];
     [bezierPath closePath];
     shapeLayer.path = bezierPath.CGPath;
+    _imageLayer.bounds = shapeLayer.bounds;
 }
 
 //MARK:- Prepare Gestures
@@ -394,7 +393,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     if(sender.state == UIGestureRecognizerStateBegan) {
         initialLocation = [sender locationInView:sender.view];
-        initialImageLayerFrame = _imageLayer.frame;
+        initialImageLayerFrame = _imageLayer.bounds;
         
         //Zoom in/out with respect to current crop center / imagelayer anchor
         imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
@@ -406,8 +405,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
-        _imageLayer.frame = scaledFrame;
-        shapeLayer.frame = scaledFrame;
+        _imageLayer.bounds = scaledFrame;
+        shapeLayer.bounds = scaledFrame;
         [self resetShapeLayerPath];
         [CATransaction commit];
         
@@ -450,28 +449,28 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     }
     
     //Calculate origin change
-    CGFloat translationX = (frame.size.width - newWidth) * anchor.x;
-    CGFloat translationY = (frame.size.height - newHeight) * anchor.y;
+//    CGFloat translationX = (frame.size.width - newWidth) * anchor.x;
+//    CGFloat translationY = (frame.size.height - newHeight) * anchor.y;
+//
+//    CGPoint newOrigin = CGPointMake(frame.origin.x + translationX, frame.origin.y + translationY);
+//
+//    //Left-Right bound check
+//    if (!(newOrigin.x < _cropLayer.frame.origin.x)) {
+//        newOrigin.x = _cropLayer.frame.origin.x;
+//    }
+//    else if (!((newOrigin.x + newWidth) > (_cropLayer.frame.origin.x + _cropLayer.frame.size.width))) {
+//        newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - newWidth;
+//    }
+//
+//    //Top-Down bound check
+//    if (!(newOrigin.y < _cropLayer.frame.origin.y)) {
+//        newOrigin.y = _cropLayer.frame.origin.y;
+//    }
+//    else if (!((newOrigin.y + newHeight) > (_cropLayer.frame.origin.y + _cropLayer.frame.size.height))) {
+//        newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - newHeight;
+//    }
     
-    CGPoint newOrigin = CGPointMake(frame.origin.x + translationX, frame.origin.y + translationY);
-    
-    //Left-Right bound check
-    if (!(newOrigin.x < _cropLayer.frame.origin.x)) {
-        newOrigin.x = _cropLayer.frame.origin.x;
-    }
-    else if (!((newOrigin.x + newWidth) > (_cropLayer.frame.origin.x + _cropLayer.frame.size.width))) {
-        newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - newWidth;
-    }
-    
-    //Top-Down bound check
-    if (!(newOrigin.y < _cropLayer.frame.origin.y)) {
-        newOrigin.y = _cropLayer.frame.origin.y;
-    }
-    else if (!((newOrigin.y + newHeight) > (_cropLayer.frame.origin.y + _cropLayer.frame.size.height))) {
-        newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - newHeight;
-    }
-    
-    return CGRectIntegral(CGRectMake(newOrigin.x, newOrigin.y, newWidth, newHeight));
+    return CGRectIntegral(CGRectMake(0, 0, newWidth, newHeight));
 }
 
 //MARK:- Resize Layers After Crop Corner Drag
@@ -638,8 +637,9 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         
 //        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
 //        CGSize rotatedSize = CGSizeApplyAffineTransform(_fitImageFrame.size, rotateTransform);
-        CGFloat scaleX = (_fitImageFrame.size.width * zoomScale) / _inputImage.size.width;
-        CGFloat scaleY = (_fitImageFrame.size.height * zoomScale) / _inputImage.size.height;
+        CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
+        CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
+        CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
         CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
 //        CGAffineTransform transform = CGAffineTransformConcat(scaleTransform, rotateTransform);
         
@@ -652,10 +652,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         
         CIFilter *perspectiveFilter = [CIFilter filterWithName:@"CIPerspectiveTransform"];
         [perspectiveFilter setValue:filterImage forKey:@"inputImage"];
-        CIVector *vectorTL = [CIVector vectorWithCGPoint:tl];
-        CIVector *vectorTR = [CIVector vectorWithCGPoint:tr];
-        CIVector *vectorBR = [CIVector vectorWithCGPoint:br];
-        CIVector *vectorBL = [CIVector vectorWithCGPoint:bl];
+        CIVector *vectorTL = [CIVector vectorWithCGPoint:imageTopLeftPoint];
+        CIVector *vectorTR = [CIVector vectorWithCGPoint:imageTopRightPoint];
+        CIVector *vectorBR = [CIVector vectorWithCGPoint:imageBottomRightPoint];
+        CIVector *vectorBL = [CIVector vectorWithCGPoint:imageBottomLeftPoint];
         [perspectiveFilter setValue:vectorTL forKey:@"inputTopLeft"];
         [perspectiveFilter setValue:vectorTR forKey:@"inputTopRight"];
         [perspectiveFilter setValue:vectorBR forKey:@"inputBottomRight"];
