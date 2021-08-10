@@ -42,6 +42,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CIImage *filterImage;
     CGPoint imageTopRightPoint, imageTopLeftPoint, imageBottomLeftPoint,imageBottomRightPoint;
     CAShapeLayer *shapeLayer;
+    CGPoint bl;
+    CGPoint tl;
+    CGPoint tr ;
+    CGPoint br;
+    CGPoint topRightconvertedPoint, topLeftconvertedPoint, bottomLeftConvertPoint,bottomRightConvertedPoint;
+
 }
 @property (strong, nonatomic) CIContext *context;
 
@@ -169,14 +175,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)resetShapeLayerPath {
     
-    CGFloat scaleX = shapeLayer.bounds.size.width / _inputImage.size.width;
-    CGFloat scaleY = shapeLayer.bounds.size.height / _inputImage.size.height;
-    CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
-    
-    CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
-    CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
-    CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
-    CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
+        CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
+        CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
+        CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
+        CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
+     bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
+     tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
+     tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
+     br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
     
     CGPoint poinstArray[] = {bl, tl, tr, br};
     CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
@@ -220,7 +226,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     if (sender.state == UIGestureRecognizerStateBegan ||
         sender.state == UIGestureRecognizerStateChanged) {
-        
+//        NSLog(@"iswithinscroll %ld",[self isWithinScrollArea]);
         if (cropCornerSelected) {
             CGPoint location = [sender locationInView:sender.view];
             
@@ -609,7 +615,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
     shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
     
+    [self findDistance];
+
+    
     //[self applySkewInImage:_inputImage];
+    
+
 }
 
 - (void)applySkewInImage:(UIImage *)image
@@ -824,5 +835,65 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
 
     return sqrtf(dx * dx + dy * dy);
 }
+
+-(BOOL)isWithinScrollArea{
+    CGPoint cropViewTopLeftCorner = _cropLayer.frame.origin;
+    CGPoint cropViewTopRightCorner = CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMinY(_cropLayer.frame));
+    CGPoint cropViewBottomRightCorner = CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame));
+    CGPoint cropViewBottomLeftCorner = CGPointMake(CGRectGetMinX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame));
+    
+    self->topLeftconvertedPoint = CGPointMake(0, 0);
+    self->topRightconvertedPoint = CGPointMake(CGRectGetWidth(self->shapeLayer.frame), 0);
+    self->bottomLeftConvertPoint = CGPointMake(0, CGRectGetHeight(self->shapeLayer.frame));
+    self->bottomRightConvertedPoint = CGPointMake(CGRectGetWidth(self->shapeLayer.frame), CGRectGetHeight(shapeLayer.frame));
+
+
+    bl = [shapeLayer convertPoint:bl toLayer:_imageLayerContainerLayer];
+    bl = [_imageLayerContainerLayer convertPoint:bl toLayer:self.layer];
+
+    tl = [shapeLayer convertPoint:tl toLayer:_imageLayerContainerLayer];
+    tl = [_imageLayerContainerLayer convertPoint:tl toLayer:self.layer];
+
+    tr = [shapeLayer convertPoint:tr toLayer:_imageLayerContainerLayer];
+    tr = [_imageLayerContainerLayer convertPoint:tr toLayer:self.layer];
+    
+    br = [shapeLayer convertPoint:br toLayer:_imageLayerContainerLayer];
+    br = [_imageLayerContainerLayer convertPoint:br toLayer:self.layer];
+
+    UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
+    [bezierPath moveToPoint:topLeftconvertedPoint];
+    [bezierPath addLineToPoint:topRightconvertedPoint];
+    [bezierPath addLineToPoint:bottomLeftConvertPoint];
+    [bezierPath addLineToPoint:bottomRightConvertedPoint];
+    [bezierPath closePath];
+    
+    BOOL iscropViewTopLeftCorner = [bezierPath containsPoint:cropViewTopLeftCorner];
+    BOOL iscropViewTopRightCorner = [bezierPath containsPoint:cropViewTopRightCorner];
+    BOOL iscropViewBottomRightCorner = [bezierPath containsPoint:cropViewBottomRightCorner];
+    BOOL iscropViewBottomLeftCorner = [bezierPath containsPoint:cropViewBottomLeftCorner];
+    
+    return  iscropViewTopLeftCorner && iscropViewTopRightCorner && iscropViewBottomRightCorner && iscropViewBottomLeftCorner;
+}
+
+- (void)findDistance {
+    bl = [shapeLayer convertPoint:bl toLayer:self.layer];
+    tl = [shapeLayer convertPoint:tl toLayer:self.layer];
+    tr = [shapeLayer convertPoint:tr toLayer:self.layer];
+    br = [shapeLayer convertPoint:br toLayer:self.layer];
+    
+    CGPoint topleft = bl;
+    CGPoint topRight = br;
+    CGPoint bottomRight = tr;
+    CGPoint bottomLeft = tl;
+    //    topleft = [_imageLayerContainerLayer convertPoint:shapeLayer.frame.origin toLayer:self.layer];
+    double topdistance = [self distanceToPoint:topleft fromLineSegmentBetween:CGPointMake(_cropLayer.frame.origin.x,_cropLayer.frame.origin.y) and:CGPointMake(CGRectGetMaxX(_cropLayer.frame), _cropLayer.frame.origin.y)];
+    double rightdistance = [self distanceToPoint:topRight fromLineSegmentBetween:CGPointMake(CGRectGetMaxX(_cropLayer.frame), _cropLayer.frame.origin.y) and:CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame))];
+    double bottomdistance = [self distanceToPoint:bottomRight fromLineSegmentBetween:CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame)) and:CGPointMake(_cropLayer.frame.origin.x, CGRectGetMaxY(_cropLayer.frame))];
+    double leftdistance = [self distanceToPoint:bottomLeft fromLineSegmentBetween:CGPointMake(_cropLayer.frame.origin.x, CGRectGetMaxY(_cropLayer.frame)) and:_cropLayer.frame.origin];
+    
+    NSLog(@"distance %f %f %f %f",topdistance,rightdistance,bottomdistance,leftdistance );
+}
+
+
 
 @end
