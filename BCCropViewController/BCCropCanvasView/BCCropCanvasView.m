@@ -152,7 +152,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [_imageLayerContainerLayer addSublayer:shapeLayer];
     
     shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
-    shapeLayer.backgroundColor = [UIColor.greenColor colorWithAlphaComponent:0.4].CGColor;
+    bezierPathForShapeLayer = [[UIBezierPath alloc] init];
 }
 
 - (void)resetImageLayerFrame {
@@ -178,12 +178,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)resetShapeLayerPath {
     
-    CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
+    CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, _fitImageFrame);
     CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
     CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
     CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
     
-    shapeLayer.path = bezierPathForShapeLayer.CGPath;
+    UIBezierPath *tempBezierPath = [UIBezierPath bezierPathWithCGPath:bezierPathForShapeLayer.CGPath];
+    [tempBezierPath applyTransform:scaleTransform];
+    shapeLayer.path = tempBezierPath.CGPath;
 
     CGPoint poinstArray[] = {imageBottomLeftPoint, imageTopLeftPoint, imageTopRightPoint, imageBottomRightPoint};
     CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
@@ -403,6 +405,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [CATransaction setDisableActions:YES];
         _imageLayer.bounds = scaledFrame;
         shapeLayer.bounds = scaledFrame;
+        _fitImageFrame = scaledFrame;
         [self resetShapeLayerPath];
         [CATransaction commit];
         
@@ -588,7 +591,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 {
     if(image)
     {
-        CGRect fittedImageRect = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds));
+        CGRect fittedImageRect = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(_inputImage.size, _fitImageFrame));
         CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
         CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
         CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
@@ -613,9 +616,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [bezierPathForShapeLayer addLineToPoint:imageTopRightPoint];
         [bezierPathForShapeLayer addLineToPoint:imageBottomRightPoint];
         [bezierPathForShapeLayer closePath];
-        [bezierPathForShapeLayer applyTransform:scaleTransform];
-        shapeLayer.path = bezierPathForShapeLayer.CGPath;
-
+        
+        UIBezierPath *tempBezierPath = [UIBezierPath bezierPathWithCGPath:bezierPathForShapeLayer.CGPath];
+        [tempBezierPath applyTransform:scaleTransform];
+        shapeLayer.path = tempBezierPath.CGPath;
+        
         CGPoint poinstArray[] = {imageBottomLeftPoint, imageTopLeftPoint, imageTopRightPoint, imageBottomRightPoint};
         CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
         smallestRect = CGRectIntegral(CGRectApplyAffineTransform(smallestRect, scaleTransform));
