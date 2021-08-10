@@ -90,7 +90,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 - (void)layoutSubviews {
     [super layoutSubviews];
     
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     _imageLayerContainerLayer.frame = self.layer.bounds;
+    [CATransaction commit];
     
     if (CGRectIsEmpty(_fitImageFrame) && _inputImage) {
         
@@ -104,7 +107,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 - (void)setInputImage:(UIImage *)inputImage {
     _inputImage = inputImage;
     
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     _imageLayer.contents = (__bridge id)[_inputImage createCGImageRef];
+    [CATransaction commit];
     [self setImageCornerPoints];
 }
 
@@ -149,9 +155,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 }
 
 - (void)resetImageLayerFrame {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     _imageLayer.frame = _fitImageFrame;
     shapeLayer.bounds = _imageLayer.bounds;
     shapeLayer.position = _imageLayer.position;
+    [CATransaction commit];
         
     [self resetShapeLayerPath];
 }
@@ -178,12 +187,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
     CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
     
-    CGPoint poinstArray[] = {bl, tl, tr, br};
-    CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
-    
-    shapeLayer.bounds = smallestRect;
-    shapeLayer.position = _imageLayer.position;
-
     UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
     [bezierPath moveToPoint:bl];
     [bezierPath addLineToPoint:tl];
@@ -191,7 +194,16 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [bezierPath addLineToPoint:br];
     [bezierPath closePath];
     shapeLayer.path = bezierPath.CGPath;
+
+    CGPoint poinstArray[] = {bl, tl, tr, br};
+    CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+    
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    shapeLayer.bounds = smallestRect;
+    shapeLayer.position = _imageLayer.position;
     _imageLayer.bounds = shapeLayer.bounds;
+    [CATransaction commit];
 }
 
 //MARK:- Prepare Gestures
@@ -609,10 +621,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
         CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
         
-        CGPoint poinstArray[] = {bl, tl, tr, br};
-        CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
-//        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
-//        smallestRect = CGRectApplyAffineTransform(smallestRect, rotateTransform);
         UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
         [bezierPath moveToPoint:bl];
         [bezierPath addLineToPoint:tl];
@@ -620,6 +628,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [bezierPath addLineToPoint:br];
         [bezierPath closePath];
         shapeLayer.path = bezierPath.CGPath;
+
+        CGPoint poinstArray[] = {bl, tl, tr, br};
+        CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+//        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
+//        smallestRect = CGRectApplyAffineTransform(smallestRect, rotateTransform);
 
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
