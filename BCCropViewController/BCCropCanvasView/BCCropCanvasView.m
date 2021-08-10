@@ -129,9 +129,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 - (void)prepareImageLayer {
     
     _imageLayer = [[CALayer alloc] init];
-    _imageLayer.contentsGravity = kCAGravityResizeAspect;
+    _imageLayer.contentsGravity = kCAGravityResize;
     _imageLayer.backgroundColor = UIColor.blackColor.CGColor;
-    
+    _imageLayer.shouldRasterize = YES;
+    _imageLayer.rasterizationScale = UIScreen.mainScreen.scale;
     [_imageLayerContainerLayer addSublayer:_imageLayer];
 }
 
@@ -176,9 +177,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
     CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
     
-//    CGPoint poinstArray[] = {bl, tl, tr, br};
-//    CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
-//    shapeLayer.frame = smallestRect;
+    CGPoint poinstArray[] = {bl, tl, tr, br};
+    CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+    
+    CGPoint currentPosition = _imageLayer.position;
+    shapeLayer.bounds = CGRectMake(0, 0, smallestRect.size.width, smallestRect.size.height);
+    shapeLayer.position = currentPosition;
+    _imageLayer.bounds = shapeLayer.bounds;
+    _imageLayer.position = currentPosition;
     
     UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
     [bezierPath moveToPoint:bl];
@@ -645,7 +651,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         CGPoint poinstArray[] = {bl, tl, tr, br};
         CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
         //smallestRect = CGRectApplyAffineTransform(smallestRect, rotateTransform);
-        shapeLayer.frame = smallestRect;
+        shapeLayer.bounds = smallestRect;
 
 //        shapeLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
 //        _imageLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
