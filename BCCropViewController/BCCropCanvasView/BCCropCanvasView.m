@@ -547,9 +547,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 //    BOOL g = [self isCropLayerSurroundedByImageLayer];
     
     _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
-    
+    rotationAngle = angle;
     CGFloat radian = angle * M_PI / 180.0;
-    rotationAngle = radian;
     CGFloat deltaAngle = radian - CGAffineTransformGetAngle(_imageLayer.affineTransform);
     
     [CATransaction begin];
@@ -560,8 +559,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     CGRect scaledFrame = [self calculateImageLayerScaledFrame:_cropLayer.frame scale:zoomScale anchorPoint:imageLayerCurrentAnchorPosition];
     
-    CGFloat width = fabs(cos(rotationAngle)) * scaledFrame.size.width + fabs(sin(rotationAngle)) * _cropLayer.frame.size.height;
-    CGFloat height = fabs(sin(rotationAngle)) * scaledFrame.size.width + fabs(cos(rotationAngle)) * _cropLayer.frame.size.height;
+    CGFloat width = fabs(cos(radian)) * scaledFrame.size.width + fabs(sin(radian)) * _cropLayer.frame.size.height;
+    CGFloat height = fabs(sin(radian)) * scaledFrame.size.width + fabs(cos(radian)) * _cropLayer.frame.size.height;
 
     if (scaledFrame.size.width >= height) {
         width = width * (width / scaledFrame.size.width);
