@@ -41,6 +41,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     CGPoint imageTopRightPoint, imageTopLeftPoint, imageBottomLeftPoint,imageBottomRightPoint;
     CAShapeLayer *shapeLayer;
+    UIBezierPath *bezierPathForShapeLayer;
 }
 @property (strong, nonatomic) CIContext *context;
 
@@ -182,21 +183,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
     CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
     
-    CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
-    CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
-    CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
-    CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
-    
-    UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
-    [bezierPath moveToPoint:bl];
-    [bezierPath addLineToPoint:tl];
-    [bezierPath addLineToPoint:tr];
-    [bezierPath addLineToPoint:br];
-    [bezierPath closePath];
-    shapeLayer.path = bezierPath.CGPath;
+    shapeLayer.path = bezierPathForShapeLayer.CGPath;
 
-    CGPoint poinstArray[] = {bl, tl, tr, br};
+    CGPoint poinstArray[] = {imageBottomLeftPoint, imageTopLeftPoint, imageTopRightPoint, imageBottomRightPoint};
     CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+    smallestRect = CGRectIntegral(CGRectApplyAffineTransform(smallestRect, scaleTransform));
     
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
@@ -597,7 +588,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 {
     if(image)
     {
-        CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
+        CGRect fittedImageRect = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds));
         CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
         CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
         CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
@@ -616,23 +607,18 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [perspectiveFilter setValue:vectorBL forKey:@"inputBottomLeft"];
         filterImage = [perspectiveFilter outputImage];
 
-        CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
-        CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
-        CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
-        CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
-        
-        UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
-        [bezierPath moveToPoint:bl];
-        [bezierPath addLineToPoint:tl];
-        [bezierPath addLineToPoint:tr];
-        [bezierPath addLineToPoint:br];
-        [bezierPath closePath];
-        shapeLayer.path = bezierPath.CGPath;
+        [bezierPathForShapeLayer removeAllPoints];
+        [bezierPathForShapeLayer moveToPoint:imageBottomLeftPoint];
+        [bezierPathForShapeLayer addLineToPoint:imageTopLeftPoint];
+        [bezierPathForShapeLayer addLineToPoint:imageTopRightPoint];
+        [bezierPathForShapeLayer addLineToPoint:imageBottomRightPoint];
+        [bezierPathForShapeLayer closePath];
+        [bezierPathForShapeLayer applyTransform:scaleTransform];
+        shapeLayer.path = bezierPathForShapeLayer.CGPath;
 
-        CGPoint poinstArray[] = {bl, tl, tr, br};
+        CGPoint poinstArray[] = {imageBottomLeftPoint, imageTopLeftPoint, imageTopRightPoint, imageBottomRightPoint};
         CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
-//        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
-//        smallestRect = CGRectApplyAffineTransform(smallestRect, rotateTransform);
+        smallestRect = CGRectIntegral(CGRectApplyAffineTransform(smallestRect, scaleTransform));
 
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
@@ -698,25 +684,24 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     if(value >= 0)
     {
         CGPoint currentPoint = imageTopRightPoint;
-        currentPoint.y = _inputImage.size.height + value;
+        currentPoint.y = floorf(_inputImage.size.height + value);
         imageTopRightPoint = currentPoint;
         
         currentPoint = imageBottomRightPoint;
-        currentPoint.y = (value * -1);
+        currentPoint.y = floorf(value * -1);
         imageBottomRightPoint = currentPoint;
     }
     else
     {
         CGPoint currentPoint = imageTopLeftPoint;
-        currentPoint.y = _inputImage.size.height - value;
+        currentPoint.y = floorf(_inputImage.size.height - value);
         imageTopLeftPoint = currentPoint;
         
         currentPoint = imageBottomLeftPoint;
-        currentPoint.y = value;
+        currentPoint.y = floorf(value);
         imageBottomLeftPoint = currentPoint;
     }
     [self applySkewInImage:_inputImage];
-//    [self rotateImageLayer:rotationAngle];
 }
 
 - (void)skewImageLayerVertically:(CGFloat)skewAngle {
@@ -728,24 +713,23 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     if(value >= 0)
     {
         CGPoint currentPoint = imageBottomLeftPoint;
-        currentPoint.x = (value * -1);
+        currentPoint.x = floorf(value * -1);
         imageBottomLeftPoint = currentPoint;
         
         currentPoint = imageBottomRightPoint;
-        currentPoint.x = _inputImage.size.width + value;
+        currentPoint.x = floorf(_inputImage.size.width + value);
         imageBottomRightPoint = currentPoint;
     }
     else
     {
         CGPoint currentPoint = imageTopLeftPoint;
-        currentPoint.x = value;
+        currentPoint.x = floorf(value);
         imageTopLeftPoint = currentPoint;
         
         currentPoint = imageTopRightPoint;
-        currentPoint.x = _inputImage.size.width - value;
+        currentPoint.x = floorf(_inputImage.size.width - value);
         imageTopRightPoint = currentPoint;
     }
     [self applySkewInImage:_inputImage];
-//    [self rotateImageLayer:rotationAngle];
 }
 @end
