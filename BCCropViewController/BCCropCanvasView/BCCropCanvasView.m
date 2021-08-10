@@ -39,7 +39,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGFloat skewAngleH;
     CGFloat skewAngleV;
     
-    CIImage *filterImage;
     CGPoint imageTopRightPoint, imageTopLeftPoint, imageBottomLeftPoint,imageBottomRightPoint;
     CAShapeLayer *shapeLayer;
 }
@@ -565,9 +564,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
     
-    _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
-    shapeLayer.anchorPoint = imageLayerCurrentAnchorPosition;
-    
     rotationAngle = angle;
     CGFloat radian = angle * M_PI / 180.0;
     rotationAngle = radian;
@@ -575,25 +571,26 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
+    _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+    shapeLayer.anchorPoint = imageLayerCurrentAnchorPosition;
     _imageLayer.affineTransform = CGAffineTransformRotate(_imageLayer.affineTransform, deltaAngle);
     shapeLayer.affineTransform = CGAffineTransformRotate(shapeLayer.affineTransform, deltaAngle);
-    [CATransaction commit];
-
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
     shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    [CATransaction commit];
+
 }
 
 - (void)applySkewInImage:(UIImage *)image
 {
     if(image)
     {
-
         CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
         CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
         CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
         CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
         
-        filterImage = [[CIImage alloc] initWithImage:image];
+        CIImage *filterImage = [[CIImage alloc] initWithImage:image];
         
         CIFilter *perspectiveFilter = [CIFilter filterWithName:@"CIPerspectiveTransform"];
         [perspectiveFilter setValue:filterImage forKey:@"inputImage"];
@@ -607,17 +604,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [perspectiveFilter setValue:vectorBL forKey:@"inputBottomLeft"];
         filterImage = [perspectiveFilter outputImage];
 
-        shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
-        shapeLayer.backgroundColor = [UIColor.greenColor colorWithAlphaComponent:0.4].CGColor;
-
         CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
         CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
         CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
         CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
         
-        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
         CGPoint poinstArray[] = {bl, tl, tr, br};
         CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+//        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
 //        smallestRect = CGRectApplyAffineTransform(smallestRect, rotateTransform);
         UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
         [bezierPath moveToPoint:bl];
