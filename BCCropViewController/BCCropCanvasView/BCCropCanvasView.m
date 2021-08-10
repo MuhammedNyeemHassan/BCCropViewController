@@ -566,8 +566,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
 //    BOOL g = [self isCropLayerSurroundedByImageLayer];
     
-//    _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
-    //rotationAngle = angle;
+    imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
+    
+    _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+    shapeLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+    
+    rotationAngle = angle;
     CGFloat radian = angle * M_PI / 180.0;
     rotationAngle = radian;
     CGFloat deltaAngle = radian - CGAffineTransformGetAngle(_imageLayer.affineTransform);
@@ -575,11 +579,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    _imageLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
-    shapeLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
+//    _imageLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
+//    shapeLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
 //    shapeLayer.affineTransform = CGAffineTransformMakeRotation(rotationAngle);
-    //_imageLayer.affineTransform = CGAffineTransformRotate(_imageLayer.affineTransform, deltaAngle);
-//    _imageLayer.affineTransform = CGAffineTransformMakeRotation(rotationAngle);
+    _imageLayer.affineTransform = CGAffineTransformRotate(_imageLayer.affineTransform, deltaAngle);
+    shapeLayer.affineTransform = CGAffineTransformRotate(shapeLayer.affineTransform, deltaAngle);
 //    CGPoint center = _imageLayer.position;
 //
 //    CGRect scaledFrame = [self calculateImageLayerScaledFrame:_cropLayer.frame scale:zoomScale anchorPoint:imageLayerCurrentAnchorPosition];
@@ -602,7 +606,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 //    _imageLayer.position = center;
 
     [CATransaction commit];
-//    _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
     
     //[self applySkewInImage:_inputImage];
 }
