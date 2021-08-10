@@ -82,6 +82,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     self.context = [CIContext context];
     [self prepareImageLayerContainerLayer];
     [self prepareImageLayer];
+    [self prepareShapeLayer];
     [self prepareCropLayer];
     [self prepareGestureRecognizers];
 }
@@ -109,20 +110,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)setImageCornerPoints {
     
-    CGFloat zoomOffset = zoomScale - 1;
-    CGFloat xOffset = (CGRectGetWidth(_imageLayer.frame) * zoomOffset) / 2.0;
-    CGFloat yOffset = (CGRectGetWidth(_imageLayer.frame) * zoomOffset) / 2.0;
-    
     imageTopLeftPoint = CGPointMake(0, _inputImage.size.height);
     imageTopRightPoint = CGPointMake(_inputImage.size.width, _inputImage.size.height);
     imageBottomLeftPoint = CGPointMake(0, 0);
     imageBottomRightPoint = CGPointMake(_inputImage.size.width, 0);
-    
-    shapeLayer = [CAShapeLayer layer];
-    shapeLayer.shouldRasterize = YES;
-    shapeLayer.rasterizationScale = UIScreen.mainScreen.scale;
-    shapeLayer.geometryFlipped = YES;
-    [_imageLayerContainerLayer addSublayer:shapeLayer];
 }
 
 //MARK:- Prepare Layers
@@ -138,15 +129,31 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 - (void)prepareImageLayer {
     
     _imageLayer = [[CALayer alloc] init];
-    _imageLayer.contentsGravity = kCAGravityResizeAspect;
+    _imageLayer.contentsGravity = kCAGravityResize;
     _imageLayer.backgroundColor = UIColor.blackColor.CGColor;
-    
+    _imageLayer.shouldRasterize = YES;
+    _imageLayer.rasterizationScale = UIScreen.mainScreen.scale;
     [_imageLayerContainerLayer addSublayer:_imageLayer];
+}
+
+- (void)prepareShapeLayer {
+    
+    shapeLayer = [CAShapeLayer layer];
+    shapeLayer.shouldRasterize = YES;
+    shapeLayer.rasterizationScale = UIScreen.mainScreen.scale;
+    shapeLayer.geometryFlipped = YES;
+    [_imageLayerContainerLayer addSublayer:shapeLayer];
+    
+    shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
+    shapeLayer.backgroundColor = [UIColor.greenColor colorWithAlphaComponent:0.4].CGColor;
 }
 
 - (void)resetImageLayerFrame {
     _imageLayer.frame = _fitImageFrame;
     shapeLayer.bounds = _imageLayer.bounds;
+    shapeLayer.position = _imageLayer.position;
+        
+    [self resetShapeLayerPath];
 }
 
 - (void)prepareCropLayer {
@@ -157,6 +164,35 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)resetCropLayerFrame {
     _cropLayer.frame = _fitImageFrame;
+}
+
+- (void)resetShapeLayerPath {
+    
+    CGFloat scaleX = shapeLayer.bounds.size.width / _inputImage.size.width;
+    CGFloat scaleY = shapeLayer.bounds.size.height / _inputImage.size.height;
+    CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
+    
+    CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
+    CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
+    CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
+    CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
+    
+    CGPoint poinstArray[] = {bl, tl, tr, br};
+    CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+    
+    CGPoint currentPosition = _imageLayer.position;
+    shapeLayer.bounds = CGRectMake(0, 0, smallestRect.size.width, smallestRect.size.height);
+    shapeLayer.position = currentPosition;
+    _imageLayer.bounds = shapeLayer.bounds;
+    _imageLayer.position = currentPosition;
+    
+    UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
+    [bezierPath moveToPoint:bl];
+    [bezierPath addLineToPoint:tl];
+    [bezierPath addLineToPoint:tr];
+    [bezierPath addLineToPoint:br];
+    [bezierPath closePath];
+    shapeLayer.path = bezierPath.CGPath;
 }
 
 //MARK:- Prepare Gestures
@@ -283,41 +319,50 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 return;
             }
             
-            CGPoint newOrigin = _imageLayer.frame.origin;
+            CGPoint newPosition = _imageLayer.position;
             
-            if ([self canImageLayerMoveHorizontally:translation.x]) {
-                newOrigin.x = newOrigin.x + translation.x;
-            }
-            else { //For removing lagging in speedy pan
-                if (velocity.x != 0) {
-                    if(velocity.x > 0) { //Moving right
-                        newOrigin.x = _cropLayer.frame.origin.x;
-                    }
-                    else //Moving left
-                    {
-                        newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - _imageLayer.frame.size.width;
+            if (rotationAngle == 0 && skewAngleV == 0 && skewAngleH == 0) {
+                if ([self canImageLayerMoveHorizontally:translation.x]) {
+                    newPosition.x = newPosition.x + translation.x;
+                }
+                else { //For removing lagging in speedy pan
+                    if (velocity.x != 0) {
+                        if(velocity.x > 0) { //Moving right
+                            newPosition.x = _cropLayer.position.x - _cropLayer.frame.size.width + _imageLayer.frame.size.width;
+                        }
+                        else //Moving left
+                        {
+                            newPosition.x = _cropLayer.position.x + _cropLayer.frame.size.width - _imageLayer.frame.size.width;
+                        }
                     }
                 }
-            }
-            
-            if ([self canImageLayerMoveVertically:translation.y]) {
-                newOrigin.y = newOrigin.y + translation.y;
-            }
-            else { //For removing lagging in speedy pan
-                if (velocity.y != 0) {
-                    if(velocity.y > 0) { //Moving down
-                        newOrigin.y = _cropLayer.frame.origin.y;
-                    }
-                    else //Moving up
-                    {
-                        newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;
+                
+                if ([self canImageLayerMoveVertically:translation.y]) {
+                    newPosition.y = newPosition.y + translation.y;
+                }
+                else { //For removing lagging in speedy pan
+                    if (velocity.y != 0) {
+                        if(velocity.y > 0) { //Moving down
+                            newPosition.y = _cropLayer.position.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;;
+                        }
+                        else //Moving up
+                        {
+                            newPosition.y = _cropLayer.position.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;
+                        }
                     }
                 }
+                
+            }
+            else {
+                
+                newPosition.x = newPosition.x + translation.x;
+                newPosition.y = newPosition.y + translation.y;
             }
             
             [CATransaction begin];
             [CATransaction setDisableActions:YES];
-            _imageLayer.frame = CGRectMake(newOrigin.x, newOrigin.y, _imageLayer.frame.size.width, _imageLayer.frame.size.height);
+            _imageLayer.position = newPosition;
+            shapeLayer.position = newPosition;
             [CATransaction commit];
         }
         
@@ -355,6 +400,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         _imageLayer.frame = scaledFrame;
+        shapeLayer.frame = scaledFrame;
+        [self resetShapeLayerPath];
         [CATransaction commit];
         
         zoomScale = sender.scale;
@@ -604,7 +651,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         CGPoint poinstArray[] = {bl, tl, tr, br};
         CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
         //smallestRect = CGRectApplyAffineTransform(smallestRect, rotateTransform);
-        shapeLayer.frame = smallestRect;
+        shapeLayer.bounds = smallestRect;
 
 //        shapeLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
 //        _imageLayer.transform = CATransform3DMakeRotation(rotationAngle, 0, 0, 1);
