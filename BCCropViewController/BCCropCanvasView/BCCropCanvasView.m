@@ -152,7 +152,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [_imageLayerContainerLayer addSublayer:shapeLayer];
     
     shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
-    shapeLayer.backgroundColor = [UIColor.greenColor colorWithAlphaComponent:0.4].CGColor;
+    bezierPathForShapeLayer = [[UIBezierPath alloc] init];
 }
 
 - (void)resetImageLayerFrame {
