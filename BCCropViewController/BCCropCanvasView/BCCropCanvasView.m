@@ -137,7 +137,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 - (void)prepareImageLayer {
     
     _imageLayer = [[CALayer alloc] init];
-    _imageLayer.contentsGravity = kCAGravityResizeAspectFill;
+    _imageLayer.contentsGravity = kCAGravityResizeAspect;
     _imageLayer.backgroundColor = UIColor.blackColor.CGColor;
     
     [_imageLayerContainerLayer addSublayer:_imageLayer];
@@ -579,41 +579,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
     [CATransaction commit];
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    
+    [self applySkewInImage:_inputImage];
 }
 
 - (void)applySkewInImage:(UIImage *)image
 {
-    filterImage = [[CIImage alloc] initWithImage:image];
-    CGRect cropRect = CGRectZero;
-    if(image.size.width > image.size.height)
-    {
-        cropRect.size = CGSizeMake(image.size.height, image.size.height);
-        cropRect.origin = CGPointMake((image.size.width - image.size.height) / 2, 0);
-    }
-    else
-    {
-        cropRect.size = CGSizeMake(image.size.width, image.size.width);
-        cropRect.origin = CGPointMake(0, (image.size.height - image.size.width) / 2);
-    }
-//    filterImage = [filterImage imageByCroppingToRect:cropRect];
-    
-    CIFilter *perspectiveFilter = [CIFilter filterWithName:@"CIPerspectiveTransform"];
-    [perspectiveFilter setValue:filterImage forKey:@"inputImage"];
-    CIVector *vectorTL = [CIVector vectorWithCGPoint:imageTopLeftPoint];
-    CIVector *vectorTR = [CIVector vectorWithCGPoint:imageTopRightPoint];
-    CIVector *vectorBR = [CIVector vectorWithCGPoint:imageBottomRightPoint];
-    CIVector *vectorBL = [CIVector vectorWithCGPoint:imageBottomLeftPoint];
-    [perspectiveFilter setValue:vectorTL forKey:@"inputTopLeft"];
-    [perspectiveFilter setValue:vectorTR forKey:@"inputTopRight"];
-    [perspectiveFilter setValue:vectorBR forKey:@"inputBottomRight"];
-    [perspectiveFilter setValue:vectorBL forKey:@"inputBottomLeft"];
-    filterImage = [perspectiveFilter outputImage];
-
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    _imageLayer.contents = CFBridgingRelease([self.context createCGImage:filterImage fromRect:filterImage.extent]);
-    [CATransaction commit];
-    
     if(image)
     {
         if(shapeLayer)
@@ -624,6 +595,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
+        
         shapeLayer = [CAShapeLayer layer];
         shapeLayer.geometryFlipped = YES;
         shapeLayer.frame = _imageLayer.bounds;
@@ -631,11 +603,34 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         
         CGFloat scaleX = shapeLayer.frame.size.width / _inputImage.size.width;
         CGFloat scaleY = shapeLayer.frame.size.height / _inputImage.size.height;
-        CGAffineTransform transform = CGAffineTransformMakeScale(scaleX, scaleY);
-        CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, transform);
-        CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, transform);
-        CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, transform);
-        CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, transform);
+        CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
+        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
+        CGAffineTransform transform = CGAffineTransformConcat(scaleTransform, rotateTransform);
+        
+        CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
+        CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
+        CGPoint tr = CGPointApplyAffineTransform(imageTopRightPoint, scaleTransform);
+        CGPoint br = CGPointApplyAffineTransform(imageBottomRightPoint, scaleTransform);
+        
+        CGPoint poinstArray[] = {bl, tl, tr, br};
+        CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+        shapeLayer.bounds = smallestRect;
+        shapeLayer.position = _imageLayer.position;
+        
+        filterImage = [[CIImage alloc] initWithImage:image];
+        
+        CIFilter *perspectiveFilter = [CIFilter filterWithName:@"CIPerspectiveTransform"];
+        [perspectiveFilter setValue:filterImage forKey:@"inputImage"];
+        CIVector *vectorTL = [CIVector vectorWithCGPoint:tl];
+        CIVector *vectorTR = [CIVector vectorWithCGPoint:tr];
+        CIVector *vectorBR = [CIVector vectorWithCGPoint:br];
+        CIVector *vectorBL = [CIVector vectorWithCGPoint:bl];
+        [perspectiveFilter setValue:vectorTL forKey:@"inputTopLeft"];
+        [perspectiveFilter setValue:vectorTR forKey:@"inputTopRight"];
+        [perspectiveFilter setValue:vectorBR forKey:@"inputBottomRight"];
+        [perspectiveFilter setValue:vectorBL forKey:@"inputBottomLeft"];
+        filterImage = [perspectiveFilter outputImage];
+
         UIBezierPath *bezierPath = [[UIBezierPath alloc] init];
         [bezierPath moveToPoint:bl];
         [bezierPath addLineToPoint:tl];
@@ -644,12 +639,41 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [bezierPath closePath];
         
         shapeLayer.path = bezierPath.CGPath;
+        shapeLayer.affineTransform = rotateTransform;
         shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
         [_imageLayerContainerLayer addSublayer:shapeLayer];
+        _imageLayer.bounds = shapeLayer.bounds;
+
+        _imageLayer.contents = CFBridgingRelease([self.context createCGImage:filterImage fromRect:filterImage.extent]);
+
         [CATransaction commit];
         
 //        [self isRectVisibleWithBottomLeft:bl topLeft:tl topRight:tr bottomRight:br inRect:CGRectApplyAffineTransform(self.parentView.bounds, CGAffineTransformMakeRotation(rotationAngle))];
     }
+}
+
+CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
+{
+    CGFloat greatestXValue = pointsArray[0].x;
+    CGFloat greatestYValue = pointsArray[0].y;
+    CGFloat smallestXValue = pointsArray[0].x;
+    CGFloat smallestYValue = pointsArray[0].y;
+
+    for(int i = 1; i < numberOfPoints; i++)
+    {
+        CGPoint point = pointsArray[i];
+        greatestXValue = MAX(greatestXValue, point.x);
+        greatestYValue = MAX(greatestYValue, point.y);
+        smallestXValue = MIN(smallestXValue, point.x);
+        smallestYValue = MIN(smallestYValue, point.y);
+    }
+
+    CGRect rect;
+    rect.origin = CGPointMake(smallestXValue, smallestYValue);
+    rect.size.width = greatestXValue - smallestXValue;
+    rect.size.height = greatestYValue - smallestYValue;
+
+    return rect;
 }
 
 - (CGRect)convertedSizeForView:(UIView *)toView fromImage:(UIImage *)fromImage
@@ -699,7 +723,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         currentPoint.y = value;
         imageBottomLeftPoint = currentPoint;
     }
-    [self applySkewInImage:_inputImage];
+    //[self applySkewInImage:_inputImage];
+    [self rotateImageLayer:rotationAngle];
 }
 
 - (void)skewImageLayerVertically:(CGFloat)skewAngle {
@@ -728,6 +753,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         currentPoint.x = _inputImage.size.width - value;
         imageTopRightPoint = currentPoint;
     }
-    [self applySkewInImage:_inputImage];
+//    [self applySkewInImage:_inputImage];
+    [self rotateImageLayer:rotationAngle];
 }
 @end
