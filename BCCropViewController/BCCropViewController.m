@@ -158,6 +158,7 @@
 }
 
 -(void)showRotationView{
+    skewType = skew360;
     [self showRulerView];
     if (rotationView == nil) {
         rotationView = [self loadFromNib:@"NCRotationView" classToLoad:[NCRotationView class]];
@@ -204,6 +205,7 @@
 
 -(void)showRulerView{
     if (rulerView == nil) {
+        
         count= 0 ;
         rulerView = [self loadFromNib:@"NCRulerView" classToLoad:[NCRulerView class]];
         rulerView.frame = rulerViewContainer.bounds;
@@ -213,8 +215,8 @@
         NSString *str =  [[NSNumber numberWithInt:(int)0] stringValue];
         str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
         rulerView.angleText = str;
-        [rulerView setIsSkew:YES];
-        [rulerView.rotateRulerView setValue:0];
+//        [rulerView setIsSkew:YES];
+//        [rulerView.rotateRulerView setValue:0];
     }
     rulerView.alpha = 1.0;
     rulerView.frame = rulerViewContainer.bounds;
@@ -314,13 +316,13 @@
 -(void)applyHorizontalSkew{
     skewType = HorizontalSkew;
     [rulerView setIsSkew:YES];
-    [rulerView setRulerValue:skewH*10];
+    [rulerView setRulerValue:skewH];
 }
 
 -(void)applyVerticalSkew{
     skewType = VerticalSkew;
     [rulerView setIsSkew:YES];
-    [rulerView setRulerValue:skewV*10];
+    [rulerView setRulerValue:skewV];
 }
 
 -(void)apply360Skew{
@@ -342,19 +344,49 @@
     
     
     NSLog(@"rotate 360***%f",rValues);
-    NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
-    str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-    rulerView.angleText = str;
-    skew360 = rValues;
     if ((rValues <= 0.1 && rValues >= -0.1) || rValues >= 180.0f ||rValues <= -180.0f) {
         [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
     }
-    if(skewType == Skew360)
-        [_cropCanvasView rotateImageLayer:rValues];
-    else if(skewType == HorizontalSkew)
-        [_cropCanvasView skewImageLayerHorizontally:rValues];
-    else
-        [_cropCanvasView skewImageLayerVertically:rValues];
+    if (skewView.alpha) {
+        if(skewType == Skew360)
+        {
+            if (count>2) {
+                NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+                str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+                rulerView.angleText = str;
+                [_cropCanvasView rotateImageLayer:rValues];
+                skew360 =rValues;
+            }else{
+                count ++;
+            }
+        }
+        else if(skewType == HorizontalSkew){
+            NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            [_cropCanvasView skewImageLayerHorizontally:rValues];
+            skewH = rValues;
+        }
+        else{
+            NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            [_cropCanvasView skewImageLayerVertically:rValues];
+            skewV = rValues;
+        }
+    }else{
+        if (count>2) {
+            NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            [_cropCanvasView rotateImageLayer:rValues];
+            skew360 =rValues;
+        }else{
+            count ++;
+        }
+    }
+    
+
 }
 
 -(void)update{
@@ -363,9 +395,11 @@
 
 
 -(void) rotateClockWise:(BOOL)flag{
+    count = 0;
 }
 
 -(void) rotateAntiClockWise:(BOOL)flag{
+    count = 0;
 }
 
 
