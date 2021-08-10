@@ -178,7 +178,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)resetShapeLayerPath {
     
-    CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds);
+    CGRect fittedImageRect = AVMakeRectWithAspectRatioInsideRect(_inputImage.size, _fitImageFrame);
     CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
     CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
     CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
@@ -405,6 +405,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [CATransaction setDisableActions:YES];
         _imageLayer.bounds = scaledFrame;
         shapeLayer.bounds = scaledFrame;
+        _fitImageFrame = scaledFrame;
         [self resetShapeLayerPath];
         [CATransaction commit];
         
@@ -590,7 +591,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 {
     if(image)
     {
-        CGRect fittedImageRect = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(_inputImage.size, self.imageLayer.bounds));
+        CGRect fittedImageRect = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(_inputImage.size, _fitImageFrame));
         CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
         CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
         CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
