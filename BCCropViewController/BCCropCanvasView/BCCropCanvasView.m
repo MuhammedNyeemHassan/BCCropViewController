@@ -77,6 +77,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)commonInit {
     
+    zoomScale = 1;
     self.backgroundColor = UIColor.darkGrayColor;
     self.clipsToBounds = YES;
     self.context = [CIContext context];
@@ -619,12 +620,12 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         
-        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
-        CGSize rotatedSize = CGSizeApplyAffineTransform(_fitImageFrame.size, rotateTransform);
-        CGFloat scaleX = rotatedSize.width / _inputImage.size.width;
-        CGFloat scaleY = rotatedSize.height / _inputImage.size.height;
+//        CGAffineTransform rotateTransform = _imageLayer.affineTransform;
+//        CGSize rotatedSize = CGSizeApplyAffineTransform(_fitImageFrame.size, rotateTransform);
+        CGFloat scaleX = (_fitImageFrame.size.width * zoomScale) / _inputImage.size.width;
+        CGFloat scaleY = (_fitImageFrame.size.height * zoomScale) / _inputImage.size.height;
         CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scaleX, scaleY);
-        CGAffineTransform transform = CGAffineTransformConcat(scaleTransform, rotateTransform);
+//        CGAffineTransform transform = CGAffineTransformConcat(scaleTransform, rotateTransform);
         
         CGPoint bl = CGPointApplyAffineTransform(imageBottomLeftPoint, scaleTransform);
         CGPoint tl = CGPointApplyAffineTransform(imageTopLeftPoint, scaleTransform);
@@ -663,14 +664,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         [bezierPath addLineToPoint:tr];
         [bezierPath addLineToPoint:br];
         [bezierPath closePath];
-        CGRect boundingBox = CGRectIntegral(CGPathGetBoundingBox(bezierPath.CGPath));
-        CGFloat xtarget = (shapeLayer.bounds.size.width - boundingBox.size.width)/2;
-        CGFloat ytarget = (shapeLayer.bounds.size.height - boundingBox.size.height)/2;
-        CGFloat xoffset = xtarget - boundingBox.origin.x;
-        CGFloat yoffset = ytarget - boundingBox.origin.y;
-        CGAffineTransform tempTransform = CGAffineTransformMakeTranslation(xoffset, yoffset);
-        CGPathRef cgpath2 = CGPathCreateCopyByTransformingPath(bezierPath.CGPath, &tempTransform);
-        shapeLayer.path = cgpath2;
+//        CGRect boundingBox = CGRectIntegral(CGPathGetBoundingBox(bezierPath.CGPath));
+//        CGFloat xtarget = (shapeLayer.bounds.size.width - boundingBox.size.width)/2;
+//        CGFloat ytarget = (shapeLayer.bounds.size.height - boundingBox.size.height)/2;
+//        CGFloat xoffset = xtarget - boundingBox.origin.x;
+//        CGFloat yoffset = ytarget - boundingBox.origin.y;
+//        CGAffineTransform tempTransform = CGAffineTransformMakeTranslation(xoffset, yoffset);
+//        CGPathRef cgpath2 = CGPathCreateCopyByTransformingPath(bezierPath.CGPath, &tempTransform);
+        shapeLayer.path = bezierPath.CGPath;
         //shapeLayer.affineTransform = rotateTransform;
         //_imageLayer.affineTransform = rotateTransform;
         _imageLayer.bounds = shapeLayer.bounds;
