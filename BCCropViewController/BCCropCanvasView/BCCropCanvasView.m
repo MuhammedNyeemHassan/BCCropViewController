@@ -167,6 +167,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _imageLayer.frame = _fitImageFrame;
     shapeLayer.bounds = _imageLayer.bounds;
     shapeLayer.position = _imageLayer.position;
+    initialImageLayerFrame = _imageLayer.frame;
     [CATransaction commit];
         
     [self resetShapeLayerPath];
@@ -600,7 +601,9 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
     shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
     [CATransaction commit];
-    [self findDistance];
+    if (![self isWithinScrollArea]) {
+        [self findDistance];
+    }
 }
 
 - (void)applySkewInImage:(UIImage *)image
@@ -849,7 +852,7 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     bottomLeft = [shapeLayer convertPoint:bottomLeft toLayer:_imageLayerContainerLayer];
     topLeft = [shapeLayer convertPoint:topLeft toLayer:_imageLayerContainerLayer];
     topRight = [shapeLayer convertPoint:topRight toLayer:_imageLayerContainerLayer];
-    bottomRight = [_imageLayer convertPoint:bottomRight toLayer:_imageLayerContainerLayer];
+    bottomRight = [shapeLayer convertPoint:bottomRight toLayer:_imageLayerContainerLayer];
 //    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
 //    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
 //    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
@@ -864,6 +867,19 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     double rightdistance = [self distanceToPoint:topRight fromLineSegmentBetween:CGPointMake(CGRectGetMaxX(_cropLayer.frame), _cropLayer.frame.origin.y) and:CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame))];
     double bottomdistance = [self distanceToPoint:bottomRight fromLineSegmentBetween:CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame)) and:CGPointMake(_cropLayer.frame.origin.x, CGRectGetMaxY(_cropLayer.frame))];
     double leftdistance = [self distanceToPoint:bottomLeft fromLineSegmentBetween:CGPointMake(_cropLayer.frame.origin.x, CGRectGetMaxY(_cropLayer.frame)) and:_cropLayer.frame.origin];
+    CGFloat maxDistance = MAX(topdistance, leftdistance);
+    CGFloat scale = maxDistance/_imageLayer.frame.size.height;
+    CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:zoomScale+scale anchorPoint:imageLayerCurrentAnchorPosition];
+    
+//    [CATransaction begin];
+//    [CATransaction setDisableActions:YES];
+    _imageLayer.bounds = scaledFrame;
+    shapeLayer.bounds = scaledFrame;
+    _fitImageFrame = scaledFrame;
+    [self resetShapeLayerPath];
+//    [CATransaction commit];
+    
+    zoomScale = zoomScale+scale;
 
     NSLog(@"distance %f %f %f %f",topdistance,rightdistance,bottomdistance,leftdistance );
 }
