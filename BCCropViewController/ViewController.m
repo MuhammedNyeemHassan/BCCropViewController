@@ -56,12 +56,23 @@
         [picker dismissViewControllerAnimated:YES completion:^{
             
             BCCropViewController *cropVC = (BCCropViewController *)[self.storyboard instantiateViewControllerWithIdentifier:@"BCCropViewController"];
-            cropVC.selectedImage = image;
+            cropVC.selectedImage = [self normalizedImage:image];
             cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
             [self.navigationController presentViewController:cropVC animated:YES completion:nil];
         }];
     }
 }
+
+- (UIImage *)normalizedImage:(UIImage *)image {
+    if (image.imageOrientation == UIImageOrientationUp) return image;
+
+    UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
+    [image drawInRect:(CGRect){0, 0, image.size}];
+    UIImage *normalizedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return normalizedImage;
+}
+
 
 - (void)bcPicker:(BCPicker *)picker didPickColor:(BCPColorType)type hexArray:(NSArray<NSString *> *)hexStrings {
     
