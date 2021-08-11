@@ -867,8 +867,16 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     double rightdistance = [self distanceToPoint:topRight fromLineSegmentBetween:CGPointMake(CGRectGetMaxX(_cropLayer.frame), _cropLayer.frame.origin.y) and:CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame))];
     double bottomdistance = [self distanceToPoint:bottomRight fromLineSegmentBetween:CGPointMake(CGRectGetMaxX(_cropLayer.frame), CGRectGetMaxY(_cropLayer.frame)) and:CGPointMake(_cropLayer.frame.origin.x, CGRectGetMaxY(_cropLayer.frame))];
     double leftdistance = [self distanceToPoint:bottomLeft fromLineSegmentBetween:CGPointMake(_cropLayer.frame.origin.x, CGRectGetMaxY(_cropLayer.frame)) and:_cropLayer.frame.origin];
-    CGFloat maxDistance = MAX(topdistance, leftdistance);
-    CGFloat scale = maxDistance/_imageLayer.frame.size.height;
+    CGFloat maxDistance ;
+    CGFloat scale;
+    if (topdistance>leftdistance) {
+        maxDistance  = topdistance;
+        scale = maxDistance/_imageLayer.frame.size.height;
+    }else{
+        maxDistance = leftdistance;
+        scale = maxDistance/_imageLayer.frame.size.width;
+
+    }
     CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:zoomScale+scale anchorPoint:imageLayerCurrentAnchorPosition];
     
 //    [CATransaction begin];
