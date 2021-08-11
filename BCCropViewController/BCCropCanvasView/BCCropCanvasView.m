@@ -651,6 +651,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         _imageLayer.bounds = shapeLayer.bounds;
         _imageLayer.contents = CFBridgingRelease([self.context createCGImage:filterImage fromRect:filterImage.extent]);
         [CATransaction commit];
+        if (![self isWithinScrollArea]) {
+            [self findDistance];
+
+        }
     }
 }
 
