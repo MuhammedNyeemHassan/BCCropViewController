@@ -226,7 +226,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     if (sender.state == UIGestureRecognizerStateBegan ||
         sender.state == UIGestureRecognizerStateChanged) {
-        NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer]);
         if (cropCornerSelected) {
             CGPoint location = [sender locationInView:sender.view];
             
@@ -320,7 +319,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             
             CGPoint translation = [sender translationInView:self];
             CGPoint velocity = [sender velocityInView:self];
-            
+            NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:translation]);
             if (CGPointEqualToPoint(translation, CGPointZero)) {
                 //No Calculations when zero movement
                 return;
@@ -361,7 +360,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 
             }
             else {
-                if ([self IsInsideCropLayer]) {
+                if (![self IsInsideCropLayer:translation]) {
                     newPosition.x = newPosition.x + translation.x;
                     newPosition.y = newPosition.y + translation.y;
                     lastImageLayerPosition = newPosition;
@@ -397,7 +396,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     if (![_cropLayer hitTest:location]) {
         return;
     }
-    NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer]);
+    NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:CGPointZero]);
 //    if (![self isWithinScrollArea]) {
 //        return;
 //    }
@@ -603,7 +602,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     shapeLayer.affineTransform = CGAffineTransformRotate(shapeLayer.affineTransform, deltaAngle);
     _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
     shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
-    if([self IsInsideCropLayer])
+    if([self IsInsideCropLayer:CGPointZero])
         [self resizeImageLayerOnDemand];
     [CATransaction commit];
 }
@@ -648,7 +647,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         shapeLayer.position = _imageLayer.position;
         _imageLayer.bounds = shapeLayer.bounds;
         _imageLayer.contents = CFBridgingRelease([self.context createCGImage:filterImage fromRect:filterImage.extent]);
-        if([self IsInsideCropLayer])
+        if([self IsInsideCropLayer:CGPointZero])
             [self resizeImageLayerOnDemand];
         [CATransaction commit];
     }
@@ -849,7 +848,7 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     NSLog(@"distance %f %f %f %f",topdistance,rightdistance,bottomdistance,leftdistance );
 }
 
-- (BOOL)IsInsideCropLayer
+- (BOOL)IsInsideCropLayer:(CGPoint)translation
 {
     CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
     CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
@@ -857,9 +856,21 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
 
     topLeft = [shapeLayer convertPoint:topLeft toLayer:_imageLayerContainerLayer];
+    topLeft.x = topLeft.x + translation.x;
+    topLeft.y = topLeft.y + translation.y;
+
     topRight = [shapeLayer convertPoint:topRight toLayer:_imageLayerContainerLayer];
+    topRight.x = topRight.x + translation.x;
+    topRight.y = topRight.y + translation.y;
+
     bottomRight = [shapeLayer convertPoint:bottomRight toLayer:_imageLayerContainerLayer];
+    bottomRight.x = bottomRight.x + translation.x;
+    bottomRight.y = bottomRight.y + translation.y;
+
     bottomLeft = [shapeLayer convertPoint:bottomLeft toLayer:_imageLayerContainerLayer];
+    bottomLeft.x = bottomLeft.x + translation.x;
+    bottomLeft.y = bottomLeft.y + translation.y;
+
     
     UIBezierPath *bezierPathShape = [[UIBezierPath alloc] init];
     [bezierPathShape moveToPoint:bottomLeft];
