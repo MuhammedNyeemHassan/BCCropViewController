@@ -338,11 +338,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 else { //For removing lagging in speedy pan
                     if (velocity.x != 0) {
                         if(velocity.x > 0) { //Moving right
-                            newPosition.x = _cropLayer.position.x - _cropLayer.frame.size.width + _imageLayer.frame.size.width;
+                            newPosition.x = _cropLayer.position.x - _cropLayer.frame.size.width/2 + _imageLayer.frame.size.width/2;
                         }
                         else //Moving left
                         {
-                            newPosition.x = _cropLayer.position.x + _cropLayer.frame.size.width - _imageLayer.frame.size.width;
+                            newPosition.x = _cropLayer.position.x + _cropLayer.frame.size.width/2 - _imageLayer.frame.size.width/2;
                         }
                     }
                 }
@@ -353,11 +353,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 else { //For removing lagging in speedy pan
                     if (velocity.y != 0) {
                         if(velocity.y > 0) { //Moving down
-                            newPosition.y = _cropLayer.position.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;;
+                            newPosition.y = _cropLayer.position.y - _cropLayer.frame.size.height/2 + _imageLayer.frame.size.height/2;
                         }
                         else //Moving up
                         {
-                            newPosition.y = _cropLayer.position.y + _cropLayer.frame.size.height - _imageLayer.frame.size.height;
+                            newPosition.y = _cropLayer.position.y + _cropLayer.frame.size.height/2 - _imageLayer.frame.size.height/2;
                         }
                     }
                 }
