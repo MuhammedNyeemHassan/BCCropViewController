@@ -384,13 +384,23 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     if (sender.state == UIGestureRecognizerStateChanged) {
         imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
         CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:sender.scale anchorPoint:imageLayerCurrentAnchorPosition];
-        if(![self IsIntersectedCropLayer:CGPointZero])
+        
+        CGRect currentBounds = _imageLayer.bounds;
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        _imageLayer.bounds = scaledFrame;
+        shapeLayer.bounds = scaledFrame;
+        _fitImageFrame = scaledFrame;
+        [self resetShapeLayerPath];
+        [CATransaction commit];
+        
+        if([self IsIntersectedCropLayer:CGPointZero])
         {
             [CATransaction begin];
             [CATransaction setDisableActions:YES];
-            _imageLayer.bounds = scaledFrame;
-            shapeLayer.bounds = scaledFrame;
-            _fitImageFrame = scaledFrame;
+            _imageLayer.bounds = currentBounds;
+            shapeLayer.bounds = currentBounds;
+            _fitImageFrame = currentBounds;
             [self resetShapeLayerPath];
             [CATransaction commit];
             
