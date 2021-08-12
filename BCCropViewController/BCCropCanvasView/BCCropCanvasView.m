@@ -379,23 +379,51 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         
         //Zoom in/out with respect to current crop center / imagelayer anchor
         imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
+        zoomScale = 1.0;
     }
     
     if (sender.state == UIGestureRecognizerStateChanged) {
-        imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
-        CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:sender.scale anchorPoint:imageLayerCurrentAnchorPosition];
-        if(![self IsIntersectedCropLayer:CGPointZero])
-        {
+        CGAffineTransform lastTransform = _imageLayer.affineTransform;
+        CGFloat deltaScale = sender.scale - zoomScale;
             [CATransaction begin];
             [CATransaction setDisableActions:YES];
-            _imageLayer.bounds = scaledFrame;
-            shapeLayer.bounds = scaledFrame;
-            _fitImageFrame = scaledFrame;
-            [self resetShapeLayerPath];
+            shapeLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+        shapeLayer.affineTransform = CGAffineTransformScale(shapeLayer.affineTransform, 1.0f + deltaScale,1.0f + deltaScale);
+            shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
             [CATransaction commit];
-            
             zoomScale = sender.scale;
+
+        if([self IsIntersectedCropLayer:CGPointZero])
+        {
+            imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
+            [CATransaction begin];
+            [CATransaction setDisableActions:YES];
+            shapeLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+            _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+            _imageLayer.affineTransform = lastTransform;
+            shapeLayer.affineTransform = lastTransform;
+            _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
+            shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
+//            if([self IsIntersectedCropLayer:CGPointZero])
+//                [self resizeImageLayerOnDemand];
+            [CATransaction commit];
+
+        }else{
+            imageLayerCurrentAnchorPosition = [self getCurrentImageLayerAnchorPoint];
+            [CATransaction begin];
+            [CATransaction setDisableActions:YES];
+            _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
+            _imageLayer.affineTransform = shapeLayer.affineTransform;
+            _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
+//            if([self IsIntersectedCropLayer:CGPointZero])
+//                [self resizeImageLayerOnDemand];
+            [CATransaction commit];
         }
+    }
+    
+    if (sender.state == UIGestureRecognizerStateEnded){
+        zoomScale = 1.0f;
+        sender.scale = 1.0f;
     }
 }
 
