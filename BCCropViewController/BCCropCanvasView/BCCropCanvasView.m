@@ -24,6 +24,17 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 @implementation BCCropIntersectionInfo
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _isIntersected = NO;
+        _intersectedPoint = CGPointZero;
+        _intersectionPoint = CGPointZero;
+    }
+    return self;
+}
+
 @end
 
 @interface BCCropCanvasView () {
@@ -50,7 +61,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGFloat lastScale;
     BOOL flippedHorizontally;
     BOOL flippedVertically;
-
+    
 
 }
 @property (strong, nonatomic) CIContext *context;
@@ -96,7 +107,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [self prepareShapeLayer];
     [self prepareCropLayer];
     [self prepareGestureRecognizers];
-    
     lastScale = 1.0f;
 
 }
@@ -226,8 +236,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         initialCropLayerFrame = _cropLayer.frame;
         cropCornerSelected = [_cropLayer didTouchAnyCorner:initialLocation];
         selectedCropCorner = [_cropLayer touchedCorner:initialLocation];
-        
         initialImageLayerFrame = _imageLayer.frame;
+        lastImageLayerPosition = initialLocation;
     }
     
     if (sender.state == UIGestureRecognizerStateBegan ||
@@ -323,6 +333,9 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         }
         else {
             
+            CGPoint location = [sender locationInView:sender.view];
+            CGFloat deltaWidth = location.x - lastImageLayerPosition.x;
+            CGFloat deltaHeight = location.y - lastImageLayerPosition.y;
             CGPoint translation = [sender translationInView:self];
             CGPoint velocity = [sender velocityInView:self];
 //            NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:translation]);
@@ -332,71 +345,68 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             }
             
             __block CGPoint newPosition = _imageLayer.position;
+            if(![self IsInsideCropLayer:CGPointMake(deltaWidth, deltaHeight)])
+            {
+                newPosition.x = newPosition.x + deltaWidth;
+                newPosition.y = newPosition.y + deltaHeight;
+            }
             
-            if (rotationAngle == 0 && skewAngleV == 0 && skewAngleH == 0) {
-                
-                if ([self canImageLayerMoveHorizontally:translation.x]) {
-                    newPosition.x = newPosition.x + translation.x;
-                }
-                else { //For removing lagging in speedy pan
-                    if (velocity.x != 0) {
-                        if(velocity.x > 0) { //Moving right
-                            newPosition.x = _cropLayer.position.x - _cropLayer.frame.size.width/2 + _imageLayer.frame.size.width/2;
-                        }
-                        else //Moving left
-                        {
-                            newPosition.x = _cropLayer.position.x + _cropLayer.frame.size.width/2 - _imageLayer.frame.size.width/2;
-                        }
-                    }
-                }
-                
-                if ([self canImageLayerMoveVertically:translation.y]) {
-                    newPosition.y = newPosition.y + translation.y;
-                }
-                else { //For removing lagging in speedy pan
-                    if (velocity.y != 0) {
-                        if(velocity.y > 0) { //Moving down
-                            newPosition.y = _cropLayer.position.y - _cropLayer.frame.size.height/2 + _imageLayer.frame.size.height/2;
-                        }
-                        else //Moving up
-                        {
-                            newPosition.y = _cropLayer.position.y + _cropLayer.frame.size.height/2 - _imageLayer.frame.size.height/2;
-                        }
-                    }
-                }
-                
-            }
-            else {
-                
-                //                BCCropIntersectionInfo *info = [self cropLayerIntersectionCheck:translation corner:0];
-                
-                //tl tr br bl
-                for (int i = 0; i < 4; i++) {
-                    BCCropIntersectionInfo *info = [self cropLayerIntersectionCheck:translation corner:i];
-                    
-                    if (info) {
-                        translation.x = translation.x - (info.intersectionPoint.x - info.intersectedPoint.x);
-                        translation.y = translation.y - (info.intersectionPoint.y - info.intersectedPoint.y);
-                        
-                    }
-                }
-                
-                //                    if (info) {
-                //                        //tl tr br bl
-                //                        newPosition.x = newPosition.x + translation.x - (info.intersectionPoint.x - info.intersectedPoint.x);
-                //                        newPosition.y = newPosition.y + translation.y - (info.intersectionPoint.y - info.intersectedPoint.y);
-                //
-                //                    }
-                
-                newPosition.x = newPosition.x + translation.x;
-                newPosition.y = newPosition.y + translation.y;
-            }
+//            if (rotationAngle == 0 && skewAngleV == 0 && skewAngleH == 0) {
+//
+////                if ([self canImageLayerMoveHorizontally:deltaWidth]) {
+////                    newPosition.x = newPosition.x + deltaWidth;
+////                }
+////                if ([self canImageLayerMoveVertically:deltaHeight]) {
+////                    newPosition.y = newPosition.y + deltaHeight;
+////                }
+//                if(![self IsInsideCropLayer:CGPointMake(deltaWidth, deltaHeight)])
+//                {
+//                    newPosition.x = newPosition.x + deltaWidth;
+//                    newPosition.y = newPosition.y + deltaHeight;
+//                }
+//            }
+//            else {
+//
+//                //                BCCropIntersectionInfo *info = [self cropLayerIntersectionCheck:translation corner:0];
+//
+//                //tl tr br bl
+//                CGPoint newTranslation = translation;
+//                NSMutableArray *intersectionArray = [self getCropIntersectionsFromTranslation:translation];
+//                BOOL isIntersected = NO;
+//                for(BCCropIntersectionInfo *info in intersectionArray)
+//                {
+//                    if(info.isIntersected)
+//                    {
+////                        newTranslation.x = newTranslation.x - (info.intersectionPoint.x - info.intersectedPoint.x);
+////                        newTranslation.y = newTranslation.y - (info.intersectionPoint.y - info.intersectedPoint.y);
+//                        deltaWidth = deltaWidth - (info.intersectionPoint.x - info.intersectedPoint.x);
+//                        deltaHeight = deltaHeight - (info.intersectionPoint.y - info.intersectedPoint.y);
+//
+//                        isIntersected = YES;
+//                    }
+//                }
+//
+////                for (int i = 0; i < 4; i++) {
+////                    BCCropIntersectionInfo *info = [self cropLayerIntersectionCheck:translation corner:i];
+////                    if (info) {
+////                        translation.x = translation.x - (info.intersectionPoint.x - info.intersectedPoint.x);
+////                        translation.y = translation.y - (info.intersectionPoint.y - info.intersectedPoint.y);
+////                    }
+////                }
+//
+//                //if(!isIntersected)
+//                {
+//                    newPosition.x = newPosition.x + deltaWidth;
+//                    newPosition.y = newPosition.y + deltaHeight;
+//                }
+//            }
             
             [CATransaction begin];
             [CATransaction setDisableActions:YES];
             _imageLayer.position = newPosition;
             shapeLayer.position = newPosition;
             [CATransaction commit];
+            lastImageLayerPosition = location;
         }
         
         [sender setTranslation:CGPointMake(0, 0) inView:self];
@@ -433,16 +443,18 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     if (sender.state == UIGestureRecognizerStateBegan || sender.state == UIGestureRecognizerStateChanged) {
         
         CGRect scaledFrame = [self calculateImageLayerScaledFrame:initialImageLayerFrame scale:sender.scale anchorPoint:imageLayerCurrentAnchorPosition];
-        
-        [CATransaction begin];
-        [CATransaction setDisableActions:YES];
-        _imageLayer.bounds = scaledFrame;
-        shapeLayer.bounds = scaledFrame;
-        _fitImageFrame = scaledFrame;
-        [self resetShapeLayerPath];
-        [CATransaction commit];
-        
-        zoomScale = sender.scale;
+        if(![self IsInsideCropLayer:CGPointZero])
+        {
+            [CATransaction begin];
+            [CATransaction setDisableActions:YES];
+            _imageLayer.bounds = scaledFrame;
+            shapeLayer.bounds = scaledFrame;
+            _fitImageFrame = scaledFrame;
+            [self resetShapeLayerPath];
+            [CATransaction commit];
+            
+            zoomScale = sender.scale;
+        }
     }
 }
 
@@ -893,6 +905,31 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     NSLog(@"distance %f %f %f %f",topdistance,rightdistance,bottomdistance,leftdistance );
 }
 
+- (NSMutableArray *)getCropIntersectionsFromTranslation:(CGPoint)translation
+{
+    NSMutableArray *cropPoints = [NSMutableArray array];
+    
+    CGPoint tl = _cropLayer.frame.origin;
+    [cropPoints addObject:[NSValue valueWithCGPoint:tl]];
+    CGPoint tr = CGPointMake(_cropLayer.frame.origin.x + _cropLayer.frame.size.width, _cropLayer.frame.origin.y);
+    [cropPoints addObject:[NSValue valueWithCGPoint:tr]];
+    CGPoint br = CGPointMake(_cropLayer.frame.origin.x + _cropLayer.frame.size.width, _cropLayer.frame.origin.y + _cropLayer.frame.size.height);
+    [cropPoints addObject:[NSValue valueWithCGPoint:br]];
+    CGPoint bl = CGPointMake(_cropLayer.frame.origin.x, _cropLayer.frame.origin.y + _cropLayer.frame.size.height);
+    [cropPoints addObject:[NSValue valueWithCGPoint:bl]];
+    
+    NSMutableArray *resultArray = [NSMutableArray new];
+    for(int index = 0; index < cropPoints.count; index++)
+    {
+        CGPoint p1 = [cropPoints[index] CGPointValue];
+        CGPoint p2 = [cropPoints[(index < 3 ? index + 1 : 0)] CGPointValue];
+        
+        BCCropIntersectionInfo *info = [self checkCropPointsInterSection:p1 point2:p2 translation:translation];
+        [resultArray addObject:info];
+    }
+    return resultArray;
+}
+
 - (BCCropIntersectionInfo *)cropLayerIntersectionCheck:(CGPoint)translation corner:(NSUInteger)index {
     
         if (index > 3)
@@ -975,26 +1012,15 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
             if (distanceBetweenPoints(intersectionPoint, p1) > distanceBetweenPoints(intersectionPoint, p2)) {
                 intersectedPoint = p2;
             }
-            
-            CALayer *lyae = [CALayer layer];
-            lyae.bounds = CGRectMake(0, 0, 10, 10);
-            lyae.backgroundColor = [UIColor.redColor colorWithAlphaComponent:0.8].CGColor;
-            lyae.position = convertedIntersection;
-            [_imageLayer addSublayer:lyae];
             break;
         }
     }
     
-    if (isIntersected) {
-        BCCropIntersectionInfo *info = [[BCCropIntersectionInfo alloc] init];
-        info.isIntersected = isIntersected;
-        info.intersectionPoint = intersectionPoint;
-        info.intersectedPoint = intersectedPoint;
-        return info;
-    }
-    else {
-        return nil;
-    }
+    BCCropIntersectionInfo *info = [[BCCropIntersectionInfo alloc] init];
+    info.isIntersected = isIntersected;
+    info.intersectionPoint = intersectionPoint;
+    info.intersectedPoint = intersectedPoint;
+    return info;
 }
 
 - (BOOL)IsInsideCropLayer:(CGPoint)translation
