@@ -22,6 +22,10 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     return atan2(t.b, t.a);
 }
 
+@implementation BCCropIntersectionInfo
+
+@end
+
 @interface BCCropCanvasView () {
     
     CGPoint initialLocation;
@@ -319,15 +323,16 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             
             CGPoint translation = [sender translationInView:self];
             CGPoint velocity = [sender velocityInView:self];
-            NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:translation]);
+//            NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:translation]);
             if (CGPointEqualToPoint(translation, CGPointZero)) {
                 //No Calculations when zero movement
                 return;
             }
             
-            CGPoint newPosition = _imageLayer.position;
+            __block CGPoint newPosition = _imageLayer.position;
             
             if (rotationAngle == 0 && skewAngleV == 0 && skewAngleH == 0) {
+                
                 if ([self canImageLayerMoveHorizontally:translation.x]) {
                     newPosition.x = newPosition.x + translation.x;
                 }
@@ -360,15 +365,29 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 
             }
             else {
-                if (![self IsInsideCropLayer:translation]) {
-                    newPosition.x = newPosition.x + translation.x;
-                    newPosition.y = newPosition.y + translation.y;
-                    lastImageLayerPosition = newPosition;
-                }else{
-                    newPosition = lastImageLayerPosition;
-                    newPosition.x = newPosition.x + translation.x;
-                    newPosition.y = newPosition.y + translation.y;
+                
+                //                BCCropIntersectionInfo *info = [self cropLayerIntersectionCheck:translation corner:0];
+                
+                //tl tr br bl
+                for (int i = 0; i < 4; i++) {
+                    BCCropIntersectionInfo *info = [self cropLayerIntersectionCheck:translation corner:i];
+                    
+                    if (info) {
+                        translation.x = translation.x - (info.intersectionPoint.x - info.intersectedPoint.x);
+                        translation.y = translation.y - (info.intersectionPoint.y - info.intersectedPoint.y);
+                        
+                    }
                 }
+                
+                //                    if (info) {
+                //                        //tl tr br bl
+                //                        newPosition.x = newPosition.x + translation.x - (info.intersectionPoint.x - info.intersectedPoint.x);
+                //                        newPosition.y = newPosition.y + translation.y - (info.intersectionPoint.y - info.intersectedPoint.y);
+                //
+                //                    }
+                
+                newPosition.x = newPosition.x + translation.x;
+                newPosition.y = newPosition.y + translation.y;
             }
             
             [CATransaction begin];
@@ -396,7 +415,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     if (![_cropLayer hitTest:location]) {
         return;
     }
-    NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:CGPointZero]);
+//    NSLog(@"iswithinscroll %ld",[self IsInsideCropLayer:CGPointZero]);
 //    if (![self isWithinScrollArea]) {
 //        return;
 //    }
@@ -572,6 +591,24 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     if (d == 0)
         return nil; // parallel lines
     CGFloat u = ((p3.x - p1.x)*(p4.y - p3.y) - (p3.y - p1.y)*(p4.x - p3.x))/d;
+    CGFloat v = ((p3.x - p1.x)*(p2.y - p1.y) - (p3.y - p1.y)*(p2.x - p1.x))/d;
+    if (u < 0.0 || u > 1.0)
+        return nil; // intersection point not between p1 and p2
+    if (v < 0.0 || v > 1.0)
+        return nil; // intersection point not between p3 and p4
+    CGPoint intersection;
+    intersection.x = p1.x + u * (p2.x - p1.x);
+    intersection.y = p1.y + u * (p2.y - p1.y);
+
+    return [NSValue valueWithCGPoint:intersection];
+}
+
+- (NSValue *)intersectionOfLineFrom:(CGPoint)p1 to:(CGPoint)p2 withLineFrom:(CGPoint)p3
+{
+    CGFloat d = (p2.x - p1.x)*(p3.y) - (p2.y - p1.y)*(p3.x);
+    if (d == 0)
+        return nil; // parallel lines
+    CGFloat u = ((p3.x - p1.x)*(p3.y) - (p3.y - p1.y)*(p3.x))/d;
     CGFloat v = ((p3.x - p1.x)*(p2.y - p1.y) - (p3.y - p1.y)*(p2.x - p1.x))/d;
     if (u < 0.0 || u > 1.0)
         return nil; // intersection point not between p1 and p2
@@ -848,6 +885,110 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     NSLog(@"distance %f %f %f %f",topdistance,rightdistance,bottomdistance,leftdistance );
 }
 
+- (BCCropIntersectionInfo *)cropLayerIntersectionCheck:(CGPoint)translation corner:(NSUInteger)index {
+    
+        if (index > 3)
+            return nil;
+    
+    NSMutableArray *cropPoints = [NSMutableArray array];
+    
+    CGPoint tl = _cropLayer.frame.origin;
+    [cropPoints addObject:[NSValue valueWithCGPoint:tl]];
+    CGPoint tr = CGPointMake(_cropLayer.frame.origin.x + _cropLayer.frame.size.width, _cropLayer.frame.origin.y);
+    [cropPoints addObject:[NSValue valueWithCGPoint:tr]];
+    CGPoint br = CGPointMake(_cropLayer.frame.origin.x + _cropLayer.frame.size.width, _cropLayer.frame.origin.y + _cropLayer.frame.size.height);
+    [cropPoints addObject:[NSValue valueWithCGPoint:br]];
+    CGPoint bl = CGPointMake(_cropLayer.frame.origin.x, _cropLayer.frame.origin.y + _cropLayer.frame.size.height);
+    [cropPoints addObject:[NSValue valueWithCGPoint:bl]];
+    
+    CGPoint p1 = [cropPoints[index] CGPointValue];
+    CGPoint p2 = [cropPoints[(index < 3 ? index + 1 : 0)] CGPointValue];
+    
+    
+    BCCropIntersectionInfo *info = [self checkCropPointsInterSection:p1 point2:p2 translation:translation];
+    return info;
+}
+
+- (BCCropIntersectionInfo *)checkCropPointsInterSection:(CGPoint)p1 point2:(CGPoint)p2 translation:(CGPoint)translation {
+    
+    NSMutableArray *shapePoints = [NSMutableArray array];
+    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+    
+    topLeft = [shapeLayer convertPoint:topLeft toLayer:_imageLayerContainerLayer];
+    topLeft.x = topLeft.x + translation.x;
+    topLeft.y = topLeft.y + translation.y;
+    [shapePoints addObject:[NSValue valueWithCGPoint:topLeft]];
+    
+    topRight = [shapeLayer convertPoint:topRight toLayer:_imageLayerContainerLayer];
+    topRight.x = topRight.x + translation.x;
+    topRight.y = topRight.y + translation.y;
+    [shapePoints addObject:[NSValue valueWithCGPoint:topRight]];
+    
+    bottomRight = [shapeLayer convertPoint:bottomRight toLayer:_imageLayerContainerLayer];
+    bottomRight.x = bottomRight.x + translation.x;
+    bottomRight.y = bottomRight.y + translation.y;
+    [shapePoints addObject:[NSValue valueWithCGPoint:bottomRight]];
+    
+    bottomLeft = [shapeLayer convertPoint:bottomLeft toLayer:_imageLayerContainerLayer];
+    bottomLeft.x = bottomLeft.x + translation.x;
+    bottomLeft.y = bottomLeft.y + translation.y;
+    [shapePoints addObject:[NSValue valueWithCGPoint:bottomLeft]];
+    
+    bool isIntersected = NO;
+    CGPoint intersectionPoint = CGPointZero;
+    CGPoint intersectedPoint = CGPointZero;
+    for (int j = 0; j < shapePoints.count; j++) {
+        
+        int s1 = j;
+        int s2;
+        if (s1 == shapePoints.count - 1) {
+            s2 = 0;
+        }
+        else {
+            s2 = s1 + 1;
+        }
+        
+        CGPoint p3 = [shapePoints[s1] CGPointValue];
+        CGPoint p4 = [shapePoints[s2] CGPointValue];
+        
+        if ([self intersectionOfLineFrom:p3 to:p4 withLineFrom:p1 to:p2]) {
+            
+            isIntersected = YES;
+            CGPoint intersection = [[self intersectionOfLineFrom:p3 to:p4 withLineFrom:p1 to:p2] CGPointValue];
+            CGPoint convertedIntersection = [_imageLayerContainerLayer convertPoint:intersection toLayer:_imageLayer];
+            NSLog(@"%@", NSStringFromCGPoint(intersection));
+            
+            intersectionPoint = intersection;
+            intersectedPoint = p1;
+            
+            if (distanceBetweenPoints(intersectionPoint, p1) > distanceBetweenPoints(intersectionPoint, p2)) {
+                intersectedPoint = p2;
+            }
+            
+            CALayer *lyae = [CALayer layer];
+            lyae.bounds = CGRectMake(0, 0, 10, 10);
+            lyae.backgroundColor = [UIColor.redColor colorWithAlphaComponent:0.8].CGColor;
+            lyae.position = convertedIntersection;
+            [_imageLayer addSublayer:lyae];
+            break;
+        }
+    }
+    
+    if (isIntersected) {
+        BCCropIntersectionInfo *info = [[BCCropIntersectionInfo alloc] init];
+        info.isIntersected = isIntersected;
+        info.intersectionPoint = intersectionPoint;
+        info.intersectedPoint = intersectedPoint;
+        return info;
+    }
+    else {
+        return nil;
+    }
+}
+
 - (BOOL)IsInsideCropLayer:(CGPoint)translation
 {
     CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
@@ -870,7 +1011,6 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     bottomLeft = [shapeLayer convertPoint:bottomLeft toLayer:_imageLayerContainerLayer];
     bottomLeft.x = bottomLeft.x + translation.x;
     bottomLeft.y = bottomLeft.y + translation.y;
-
     
     UIBezierPath *bezierPathShape = [[UIBezierPath alloc] init];
     [bezierPathShape moveToPoint:bottomLeft];

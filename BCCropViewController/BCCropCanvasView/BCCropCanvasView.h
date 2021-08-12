@@ -9,6 +9,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface BCCropIntersectionInfo: NSObject
+
+@property (nonatomic) BOOL isIntersected;
+@property (nonatomic) CGPoint intersectionPoint;
+@property (nonatomic) CGPoint intersectedPoint;
+
+@end
+
 @interface BCCropCanvasView : UIView
 
 @property (strong, nonatomic) UIImage *inputImage;
