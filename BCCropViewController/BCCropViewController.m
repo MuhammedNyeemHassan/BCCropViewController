@@ -293,11 +293,13 @@
 
 -(void)flipViewFlippedHorizontally{
     horizontalFlip = horizontalFlip^1;
+    [_cropCanvasView flipImageHorizontal];
     resetBtn.enabled = YES;
 }
 
 -(void)flipViewFlippedVeritcally{
     verticalFlip = verticalFlip^1;
+    [_cropCanvasView flipImageVertical];
     resetBtn.enabled = YES;
 }
 

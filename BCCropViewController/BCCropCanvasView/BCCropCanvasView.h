@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)rotateImageLayer:(CGFloat)angle;
 - (void)skewImageLayerHorizontally:(CGFloat)skewAngle;
 - (void)skewImageLayerVertically:(CGFloat)skewAngle;
+
+-(void)flipImageHorizontal;
+-(void)flipImageVertical;
+
 @end
 
 NS_ASSUME_NONNULL_END
