@@ -9,7 +9,7 @@
 #import "UIImage+Utility.h"
 #import "BCCropLayer.h"
 #import <AVFoundation/AVFoundation.h>
-
+#import "NCCropDataModel.h"
 static const CGFloat kMinimumCropAreaInset = 15.0;
 static const CGFloat kMinimumCropAreaSide = 54.0;
 
@@ -61,6 +61,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGFloat lastScale;
     BOOL flippedHorizontally;
     BOOL flippedVertically;
+    CGPoint initialImageLayerPosition;
+    NCCropDataModel * cropDataModel;
     
 
 }
@@ -108,6 +110,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     [self prepareCropLayer];
     [self prepareGestureRecognizers];
     lastScale = 1.0f;
+    cropDataModel = [[NCCropDataModel alloc] init];
 
 }
 
@@ -159,7 +162,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     _imageLayer = [[CALayer alloc] init];
     _imageLayer.contentsGravity = kCAGravityResize;
-    _imageLayer.backgroundColor = UIColor.blackColor.CGColor;
     _imageLayer.shouldRasterize = YES;
     _imageLayer.rasterizationScale = UIScreen.mainScreen.scale;
     [_imageLayerContainerLayer addSublayer:_imageLayer];
@@ -186,6 +188,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     initialImageLayerFrame = _imageLayer.frame;
     [self resetShapeLayerPath];
     [CATransaction commit];
+    initialImageLayerPosition = _imageLayer.position;
 }
 
 - (void)prepareCropLayer {
@@ -838,6 +841,40 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     flippedVertically = !flippedVertically;
     [self applySkewInImage:_inputImage];
 }
+
+#pragma mark Done Btn Action
+
+-(void)saveModelAndApply{
+    [self saveDataModel];
+    UIImage *outputImage = [cropDataModel croppedImage:_inputImage];
+    NSLog(@"outputImage size %@",NSStringFromCGSize(outputImage.size));
+}
+
+#pragma mark Save Model
+
+-(void)saveDataModel{
+    
+    cropDataModel.imageBottomLeftPoint = imageBottomLeftPoint;
+    cropDataModel.imageTopLeftPoint = imageTopLeftPoint;
+    cropDataModel.imageTopRightPoint = imageTopRightPoint;
+    cropDataModel.imageBottomRightPoint = imageBottomRightPoint;
+    cropDataModel.imageTranslationPoint = [self photoTranslation];
+    cropDataModel.flipH = flippedHorizontally;
+    cropDataModel.flipV = flippedVertically;
+    cropDataModel.cropSize = _cropLayer.bounds.size;
+    cropDataModel.imageLayerSize = _imageLayer.bounds.size;
+    cropDataModel.rotationAngle = CGAffineTransformGetAngle(_imageLayer.affineTransform);
+    cropDataModel.zoomScale = zoomScale;
+
+}
+
+- (CGPoint)photoTranslation
+{
+    CGPoint point = _imageLayer.position; //CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height / 2);
+    CGPoint zeroPoint = initialImageLayerPosition;
+    return CGPointMake(point.x - zeroPoint.x, point.y - zeroPoint.y);
+}
+
 
 
 @end

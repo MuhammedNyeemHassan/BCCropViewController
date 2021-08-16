@@ -108,7 +108,7 @@
 
 //MARK:- Button Actions
 - (IBAction)doneButtonPressed:(UIButton *)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [_cropCanvasView saveModelAndApply];
 }
 
 //MARK:- BCCropMenuView Actions
@@ -235,12 +235,9 @@
 -(void)hideRulerView{
     rulerView.frame = rulerViewContainer.bounds;
     rulerViewHeightConstraint.constant =  0.0;
+    self->rulerView.alpha = 0.0;
     bottomViewAspectConstraintLow.active = YES;
     bottomViewAspectConstraintHigh.active = NO;
-    [UIView animateWithDuration:0.25 animations:^{
-        self->rulerView.alpha = 0.0;
-        [self.view layoutIfNeeded];
-    }];
 }
 
 

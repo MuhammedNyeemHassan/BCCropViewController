@@ -27,6 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)flipImageHorizontal;
 -(void)flipImageVertical;
+- (IBAction)saveToGalleryTapped;
+-(void)saveModelAndApply;
+
 
 @end
 

@@ -10,18 +10,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NCCropDataModel : NCBaseDataModel
-@property (nonatomic,strong) NSString *cropRatio;
-@property (nonatomic,strong) NSString *cropContentOffset;
-@property (nonatomic,strong) NSString *cropScrollZoomRect;
 @property (nonatomic,assign) BOOL flipH;
 @property (nonatomic,assign) BOOL flipV;
-@property (nonatomic,assign) CGFloat rotationValue;
-@property (nonatomic,assign) CGFloat skewHValue;
-@property (nonatomic,assign) CGFloat skewVValue;
+@property (nonatomic,assign) CGFloat rotationAngle;
 @property (nonatomic,assign) CGFloat zoomScale;
-@property (nonatomic,strong) NSString* lastCropViewSize;
+@property (nonatomic,assign) CGSize cropSize;
+@property (nonatomic,assign) CGSize imageLayerSize;
+@property (nonatomic,assign) CGPoint imageTopLeftPoint;
+@property (nonatomic,assign) CGPoint imageTopRightPoint;
+@property (nonatomic,assign) CGPoint imageBottomRightPoint;
+@property (nonatomic,assign) CGPoint imageBottomLeftPoint;
+@property (nonatomic,assign) CGPoint imageTranslationPoint;
 
 -(id)initWithDictionary:(NSDictionary*)cropInfoDict;
+-(UIImage*)croppedImage:(UIImage*)inputImage;
 
 
 @end
