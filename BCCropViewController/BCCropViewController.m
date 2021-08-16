@@ -209,6 +209,8 @@
     [self hideAllOtherOptions];
     [skewView setAlpha:1.0];
     [rulerView setIsSkew:YES];
+    skewType = HorizontalSkew;
+
     switch (skewType) {
         case HorizontalSkew:
             [self applyHorizontalSkew];
