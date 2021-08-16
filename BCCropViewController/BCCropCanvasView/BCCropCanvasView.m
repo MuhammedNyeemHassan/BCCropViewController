@@ -797,13 +797,23 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     {
         if(flippedHorizontally)
         {
-            imageTopRightPoint.y = _inputImage.size.height;
-            imageBottomRightPoint.y = 0;
+            if (value>=0) {
+                imageTopLeftPoint.y = _inputImage.size.height;
+                imageBottomLeftPoint.y = 0;
+            }else{
+                imageTopRightPoint.y = _inputImage.size.height;
+                imageBottomRightPoint.y = 0;
+            }
         }
         else
         {
-            imageTopLeftPoint.y = _inputImage.size.height;
-            imageBottomLeftPoint.y = 0;
+            if (value>=0) {
+                imageTopLeftPoint.y = _inputImage.size.height;
+                imageBottomLeftPoint.y = 0;
+            }else{
+                imageTopRightPoint.y = _inputImage.size.height;
+                imageBottomRightPoint.y = 0;
+            }
         }
     }
     if(value >= 0)
@@ -839,13 +849,24 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     {
         if(flippedVertically)
         {
-            imageBottomLeftPoint.x = 0;
-            imageBottomRightPoint.x = _inputImage.size.width;
+            if (value< 0) {
+                imageBottomLeftPoint.x = 0;
+                imageBottomRightPoint.x = _inputImage.size.width;
+            }else{
+                imageTopLeftPoint.x = 0;
+                imageTopRightPoint.x = _inputImage.size.width;
+            }
         }
         else
         {
-            imageTopLeftPoint.x = 0;
-            imageTopRightPoint.x = _inputImage.size.width;
+            if (value>= 0) {
+                imageTopLeftPoint.x = 0;
+                imageTopRightPoint.x = _inputImage.size.width;
+            }else{
+                imageBottomLeftPoint.x = 0;
+                imageBottomRightPoint.x = _inputImage.size.width;
+            }
+
         }
     }
     if(value >= 0)
