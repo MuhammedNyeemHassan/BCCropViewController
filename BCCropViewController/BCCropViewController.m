@@ -205,6 +205,7 @@
         skewView.frame = _optionsContainerView.bounds;
         skewView.delegate = self;
         [_optionsContainerView addSubview:skewView];
+        skewType = HorizontalSkew;
     }
     [self hideAllOtherOptions];
     [skewView setAlpha:1.0];
