@@ -318,10 +318,6 @@
     [_cropCanvasView flipImageHorizontal];
     skewH *= -1;
     [_cropCanvasView skewImageLayerHorizontally:skewH shouldReset:YES];
-//    if(skewType == HorizontalSkew)
-//        [rulerView setRulerValue:skewH];
-//
-
     resetBtn.enabled = YES;
 }
 
@@ -330,9 +326,6 @@
     [_cropCanvasView flipImageVertical];
     skewV *= -1;
     [_cropCanvasView skewImageLayerVertically:skewV shouldReset:YES];
-//    if(skewType == VerticalSkew)
-//        [rulerView setRulerValue:skewV];
-
     resetBtn.enabled = YES;
 }
 
