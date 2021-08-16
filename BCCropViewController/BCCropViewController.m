@@ -41,6 +41,7 @@
     BOOL verticalFlip;
     BOOL shouldSkew;
     int count ;   //Count to help rotation
+    int degreeVal; // Ruler Value Change;
 
 
 
@@ -168,7 +169,7 @@
     }
     [self hideAllOtherOptions];
     [rotationView setAlpha:1.0];
-    [rulerView setIsSkew:NO];
+    [self apply360Skew];
 //    if (_cropDataModel.rotationValue) {
 //        [rulerView setRulerValue:skew360];
 //    }
@@ -393,11 +394,72 @@
 }
 
 
--(void) rotateClockWise:(BOOL)flag{
+//-(void) rotateClockWise:(BOOL)flag{
+//    count = 0;
+//}
+//
+//-(void) rotateAntiClockWise:(BOOL)flag{
+//    count = 0;
+//}
+
+-(void) rotateAntiClockWise:(BOOL) flag{
+//    [self.tweakView.cropView ]
+    if(flag){
+        for(int i=180;i>=rulerView.rotateRulerView.value;i--){
+            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            [_cropCanvasView rotateImageLayer:(M_PI*i)/180.0 ];
+        }
+
+        NCCRRulerControl *ruler =rulerView.rotateRulerView;
+        [ruler setValue:rulerView.changedValue animated:YES];
+    }
+    else {
+        NSLog(@"ROTATING ANTI CLOCKWISE");
+        
+        degreeVal = rulerView.rotateRulerView.value;
+        for(int i=rulerView.rotateRulerView.value;i>=degreeVal;i--){
+            NSLog(@"Moving");
+            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            NSLog(@"------%@",str);
+            [_cropCanvasView rotateImageLayer:(M_PI*i)/180.0 ];
+        }
+    }
     count = 0;
 }
 
--(void) rotateAntiClockWise:(BOOL)flag{
+#pragma mark - rotate ClockWise
+-(void) rotateClockWise:(BOOL) flag{
+    if(flag) {
+        degreeVal =rulerView.rotateRulerView.value;
+        for(int i=-180;i<=rulerView.rotateRulerView.value;i++){
+            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            [_cropCanvasView rotateImageLayer:(M_PI*i)/180.0 ];
+        }
+        NCCRRulerControl *ruler =rulerView.rotateRulerView;
+        [ruler setValue:rulerView.changedValue animated:YES];
+    }
+    else {
+        
+        NSLog(@"ROTATING CLOCKWISE");
+        
+        degreeVal =rulerView.rotateRulerView.value;
+        for(int i=rulerView.rotateRulerView.value;i<=degreeVal;i++){
+            
+            NSLog(@"%d %d",degreeVal,i);
+            
+            NSString *str =  [[NSNumber numberWithInt:(int)i] stringValue];
+            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+            rulerView.angleText = str;
+            [_cropCanvasView rotateImageLayer:(M_PI*i)/180.0 ];
+        }
+    }
+//    [self.tweakView.cropView updateCropLines:YES];
     count = 0;
 }
 
