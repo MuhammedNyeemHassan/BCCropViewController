@@ -180,7 +180,6 @@
 }
 
 -(void)showRotationView{
-    skewType = skew360;
     [self showRulerView];
     if (rotationView == nil) {
         rotationView = [self loadFromNib:@"NCRotationView" classToLoad:[NCRotationView class]];
@@ -190,7 +189,9 @@
     }
     [self hideAllOtherOptions];
     [rotationView setAlpha:1.0];
-    [self apply360Skew];
+    [rulerView setIsSkew:NO];
+    [rulerView setRulerValue:skew360];
+
 //    if (_cropDataModel.rotationValue) {
 //        [rulerView setRulerValue:skew360];
 //    }
