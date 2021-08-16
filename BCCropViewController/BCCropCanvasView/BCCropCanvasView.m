@@ -264,9 +264,13 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             
             CGPoint newCropLayerOrigin = initialCropLayerFrame.origin;
             
-            if ([self IsIntersectedCropLayer:CGPointMake(xPannedDistance, yPannedDistance) isCropResizing:YES]) {
-                location = lastLocation;
+            if ([self IsIntersectedCropLayer:CGPointMake(xPannedDistance, 0) isCropResizing:YES]) {
+                location.x = lastLocation.x;
                 xPannedDistance = location.x - initialLocation.x;
+            }
+            
+            if ([self IsIntersectedCropLayer:CGPointMake(0, yPannedDistance) isCropResizing:YES]) {
+                location.y = lastLocation.y;
                 yPannedDistance = location.y - initialLocation.y;
             }
 
@@ -1008,6 +1012,10 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
             default: {
                 break;
             }
+        }
+        
+        if (possibleCropLayerWidth < initialCropLayerFrame.size.width || possibleCropLayerHeight < initialCropLayerFrame.size.height){
+            return NO;
         }
         
         cropFrame.origin = possibleCropLayerOrigin;
