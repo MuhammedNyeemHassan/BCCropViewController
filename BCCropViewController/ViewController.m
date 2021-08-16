@@ -57,8 +57,9 @@
             
             BCCropViewController *cropVC = (BCCropViewController *)[self.storyboard instantiateViewControllerWithIdentifier:@"BCCropViewController"];
             cropVC.selectedImage = [self normalizedImage:image];
-            cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
-            [self.navigationController presentViewController:cropVC animated:YES completion:nil];
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:cropVC];
+            navController.modalPresentationStyle = UIModalPresentationFullScreen;
+            [self.navigationController presentViewController:navController animated:YES completion:nil];
         }];
     }
 }

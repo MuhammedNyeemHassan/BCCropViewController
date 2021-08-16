@@ -1047,10 +1047,11 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
 
 #pragma mark Done Btn Action
 
--(void)saveModelAndApply{
+-(UIImage *)saveModelAndApply{
     [self saveDataModel];
     UIImage *outputImage = [cropDataModel croppedImage:_inputImage];
     NSLog(@"outputImage size %@",NSStringFromCGSize(outputImage.size));
+    return outputImage;
 }
 
 #pragma mark Save Model
