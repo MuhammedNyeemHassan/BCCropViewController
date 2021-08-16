@@ -60,6 +60,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    UIBarButtonItem *closeItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop target:self action:@selector(closeButtonPressed:)];
+    self.navigationItem.leftBarButtonItem = closeItem;
+    
     [self commonInit];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
 
@@ -107,8 +110,26 @@
 }
 
 //MARK:- Button Actions
+
+- (void)closeButtonPressed:(id)sender
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (IBAction)doneButtonPressed:(UIButton *)sender {
-    [_cropCanvasView saveModelAndApply];
+    UIImage *image = [_cropCanvasView saveModelAndApply];
+    [self shareImage:image fromViewController:self];
+}
+
+- (void)shareImage:(UIImage *)image fromViewController:(UIViewController *)viewController
+{
+    if(image)
+    {
+        UIActivityViewController *activity = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
+        [activity popoverPresentationController].sourceView = viewController.view;
+        [activity popoverPresentationController].sourceRect = viewController.view.frame;
+        [viewController presentViewController:activity animated:true completion:nil];
+    }
 }
 
 //MARK:- BCCropMenuView Actions
