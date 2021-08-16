@@ -316,20 +316,23 @@
 -(void)flipViewFlippedHorizontally{
     horizontalFlip = horizontalFlip^1;
     [_cropCanvasView flipImageHorizontal];
-    [_cropCanvasView skewImageLayerHorizontally:skewH shouldReset:YES];
     skewH *= -1;
-    if(skewType == skewH)
-        [rulerView setRulerValue:skewH];
+    [_cropCanvasView skewImageLayerHorizontally:skewH shouldReset:YES];
+//    if(skewType == HorizontalSkew)
+//        [rulerView setRulerValue:skewH];
+//
+
     resetBtn.enabled = YES;
 }
 
 -(void)flipViewFlippedVeritcally{
     verticalFlip = verticalFlip^1;
     [_cropCanvasView flipImageVertical];
-    [_cropCanvasView skewImageLayerVertically:skewV shouldReset:YES];
     skewV *= -1;
-    if(skewType == skewV)
-        [rulerView setRulerValue:skewV];
+    [_cropCanvasView skewImageLayerVertically:skewV shouldReset:YES];
+//    if(skewType == VerticalSkew)
+//        [rulerView setRulerValue:skewV];
+
     resetBtn.enabled = YES;
 }
 
