@@ -52,19 +52,13 @@
     
     CGImageRef cgImage = [context createCGImage:filterImage fromRect:filterImage.extent];
     UIImage *image = [UIImage imageWithCGImage:cgImage];
-    
-    NSDictionary *cropdict = [self cropResultWithosition:CGPointZero image:image flipH:self.flipH flipV:self.flipV];
-    return [cropdict objectForKey:@"image"];
+    CGImageRelease(cgImage);
+    UIImage *croppedImage = [self cropResultWithImage:image];
+    return croppedImage;
 }
 
-- (void)saveToGalleryTapped
+-(UIImage *)cropResultWithImage:(UIImage*)sourceMainImg
 {
-    
-}
-
-
-
--(NSDictionary*)cropResultWithosition:(CGPoint)cropPosition  image:(UIImage*)sourceMainImg flipH:(BOOL)cropHorizontalFliped flipV:(BOOL)cropVerticalFliped{
     CGAffineTransform transform = CGAffineTransformIdentity;
     
     // translate
@@ -76,16 +70,13 @@
         
     CGImageRef newCgIm = CGImageCreateCopy(sourceMainImg.CGImage);
     UIImage *img = [UIImage imageWithCGImage:newCgIm scale:sourceMainImg.scale orientation:sourceMainImg.imageOrientation];
-    
+    CGImageRelease(newCgIm);
     CGImageRef fixedImage = [self cgImageWithFixedOrientation: img];
     CGImageRef imageRef = [self transformedImage:transform :fixedImage :self.zoomScale :sourceMainImg.size :self.cropSize :self.imageLayerSize];
     CGImageRelease(fixedImage);
     UIImage *image = [UIImage imageWithCGImage:imageRef];
     CGImageRelease(imageRef);
-    
-    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:[NSValue valueWithCGPoint:cropPosition], @"cropPosition", [NSNumber numberWithFloat:self.zoomScale], @"cropZoomScale", image, @"image", nil];
-    
-    return dic;
+    return image;
 }
 
 
