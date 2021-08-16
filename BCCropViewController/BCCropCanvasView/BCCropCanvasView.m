@@ -61,12 +61,11 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGFloat lastScale;
     BOOL flippedHorizontally;
     BOOL flippedVertically;
-    CGRect smallestRect;
     UIGestureRecognizerState pinchState;
     CGPoint initialImageLayerPosition;
     NCCropDataModel * cropDataModel;
-    
-
+    CGFloat skewHorizontalValue;
+    CGFloat skewVerticalValue;
 }
 @property (strong, nonatomic) CIContext *context;
 
@@ -149,6 +148,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     imageTopRightPoint = CGPointMake(_inputImage.size.width, _inputImage.size.height);
     imageBottomLeftPoint = CGPointMake(0, 0);
     imageBottomRightPoint = CGPointMake(_inputImage.size.width, 0);
+    skewHorizontalValue = 0.0;
+    skewVerticalValue = 0.0;
     [self applySkewInImage:_inputImage];
 }
 
@@ -773,12 +774,25 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     return rect;
 }
 
-- (void)skewImageLayerHorizontally:(CGFloat)skewAngle {
+- (void)skewImageLayerHorizontally:(CGFloat)skewAngle shouldReset:(BOOL)reset {
     
     skewAngleH = skewAngle / 10.0;
-    
+    skewHorizontalValue = skewAngle;
     CGFloat value = skewAngle;
     value = value / 200 * _inputImage.size.height;
+    if(reset)
+    {
+        if(flippedHorizontally)
+        {
+            imageTopRightPoint.y = _inputImage.size.height;
+            imageBottomRightPoint.y = 0;
+        }
+        else
+        {
+            imageTopLeftPoint.y = _inputImage.size.height;
+            imageBottomLeftPoint.y = 0;
+        }
+    }
     if(value >= 0)
     {
         CGPoint currentPoint = imageTopRightPoint;
@@ -802,12 +816,25 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     [self applySkewInImage:_inputImage];
 }
 
-- (void)skewImageLayerVertically:(CGFloat)skewAngle {
+- (void)skewImageLayerVertically:(CGFloat)skewAngle shouldReset:(BOOL)reset {
     
     skewAngleV = skewAngle / 10.0;
-    
+    skewVerticalValue = skewAngle;
     CGFloat value = skewAngle;
     value = value / 200 * _inputImage.size.width;
+    if(reset)
+    {
+        if(flippedVertically)
+        {
+            imageBottomLeftPoint.x = 0;
+            imageBottomRightPoint.x = _inputImage.size.width;
+        }
+        else
+        {
+            imageTopLeftPoint.x = 0;
+            imageTopRightPoint.x = _inputImage.size.width;
+        }
+    }
     if(value >= 0)
     {
         CGPoint currentPoint = imageBottomLeftPoint;
@@ -1037,12 +1064,10 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
 
 -(void)flipImageHorizontal{
     flippedHorizontally = !flippedHorizontally;
-    [self applySkewInImage:_inputImage];
 }
 
 -(void)flipImageVertical{
     flippedVertically = !flippedVertically;
-    [self applySkewInImage:_inputImage];
 }
 
 #pragma mark Done Btn Action

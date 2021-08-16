@@ -209,8 +209,7 @@
     [self hideAllOtherOptions];
     [skewView setAlpha:1.0];
     [rulerView setIsSkew:YES];
-    skewType = HorizontalSkew;
-
+    
     switch (skewType) {
         case HorizontalSkew:
             [self applyHorizontalSkew];
@@ -315,12 +314,20 @@
 -(void)flipViewFlippedHorizontally{
     horizontalFlip = horizontalFlip^1;
     [_cropCanvasView flipImageHorizontal];
+    [_cropCanvasView skewImageLayerHorizontally:skewH shouldReset:YES];
+    skewH *= -1;
+    if(skewType == skewH)
+        [rulerView setRulerValue:skewH];
     resetBtn.enabled = YES;
 }
 
 -(void)flipViewFlippedVeritcally{
     verticalFlip = verticalFlip^1;
     [_cropCanvasView flipImageVertical];
+    [_cropCanvasView skewImageLayerVertically:skewV shouldReset:YES];
+    skewV *= -1;
+    if(skewType == skewV)
+        [rulerView setRulerValue:skewV];
     resetBtn.enabled = YES;
 }
 
@@ -387,14 +394,14 @@
             NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
             str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
             rulerView.angleText = str;
-            [_cropCanvasView skewImageLayerHorizontally:rValues];
+            [_cropCanvasView skewImageLayerHorizontally:rValues shouldReset:NO];
             skewH = rValues;
         }
         else{
             NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
             str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
             rulerView.angleText = str;
-            [_cropCanvasView skewImageLayerVertically:rValues];
+            [_cropCanvasView skewImageLayerVertically:rValues shouldReset:NO];
             skewV = rValues;
         }
     }else{
