@@ -191,8 +191,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             CGSize sizeDiff = CGSizeMake(widthDiff, heightDiff);
             sizeDiff = CGSizeApplyAffineTransform(sizeDiff, scale);
             sizeDiff = CGSizeZero;
-            CGFloat width = fabs(cos(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(sin(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height) + 1;
-            CGFloat height = fabs(sin(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(cos(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height) + 1;
+            CGFloat width = fabs(cos(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(sin(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height);
+            CGFloat height = fabs(sin(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(cos(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height);
             if(_inputImage.size.width > _inputImage.size.height)
                 width = _inputImage.size.width / _inputImage.size.height * height;
             else
@@ -1137,13 +1137,13 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
         cropFrame.size = CGSizeMake(possibleCropLayerWidth, possibleCropLayerHeight);
     }
     
-    CGPoint tl = CGPointMake(cropFrame.origin.x, cropFrame.origin.y);
+    CGPoint tl = CGPointMake(cropFrame.origin.x + 1, cropFrame.origin.y + 1);
     [cropPoints addObject:[NSValue valueWithCGPoint:tl]];
-    CGPoint tr = CGPointMake(cropFrame.origin.x + cropFrame.size.width, cropFrame.origin.y);
+    CGPoint tr = CGPointMake(cropFrame.origin.x + cropFrame.size.width - 1, cropFrame.origin.y + 1);
     [cropPoints addObject:[NSValue valueWithCGPoint:tr]];
-    CGPoint br = CGPointMake(cropFrame.origin.x + cropFrame.size.width, cropFrame.origin.y + cropFrame.size.height);
+    CGPoint br = CGPointMake(cropFrame.origin.x + cropFrame.size.width - 1, cropFrame.origin.y + cropFrame.size.height - 1);
     [cropPoints addObject:[NSValue valueWithCGPoint:br]];
-    CGPoint bl = CGPointMake(cropFrame.origin.x, cropFrame.origin.y + cropFrame.size.height);
+    CGPoint bl = CGPointMake(cropFrame.origin.x + 1, cropFrame.origin.y + cropFrame.size.height - 1);
     [cropPoints addObject:[NSValue valueWithCGPoint:bl]];
     
     for(int index = 0; index < cropPoints.count; index++)
