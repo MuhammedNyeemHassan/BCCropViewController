@@ -51,13 +51,13 @@
     filterImage = [perspectiveFilter outputImage];
     
     CGImageRef cgImage = [context createCGImage:filterImage fromRect:filterImage.extent];
-    UIImage *image = [UIImage imageWithCGImage:cgImage];
+    UIImage *image = [UIImage imageWithCGImage:cgImage scale:inputImage.scale orientation:inputImage.imageOrientation];
     CGImageRelease(cgImage);
     UIImage *croppedImage = [self cropResultWithImage:image];
     return croppedImage;
 }
 
--(UIImage *)cropResultWithImage:(UIImage*)sourceMainImg
+-(UIImage *)cropResultWithImage:(UIImage *)image
 {
     CGAffineTransform transform = CGAffineTransformIdentity;
     
@@ -67,20 +67,13 @@
     
     // rotate
     transform = CGAffineTransformRotate(transform, self.rotationAngle);
-        
-    CGImageRef newCgIm = CGImageCreateCopy(sourceMainImg.CGImage);
-    UIImage *img = [UIImage imageWithCGImage:newCgIm scale:sourceMainImg.scale orientation:sourceMainImg.imageOrientation];
-    CGImageRelease(newCgIm);
-    CGImageRef fixedImage = [self cgImageWithFixedOrientation: img];
-    CGImageRef imageRef = [self transformedImage:transform :fixedImage :self.zoomScale :sourceMainImg.size :self.cropSize :self.imageLayerSize];
-    CGImageRelease(fixedImage);
-    UIImage *image = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);
-    return image;
+
+    UIImage *newImage = [self imageWithFixedOrientation:image];
+    newImage = [self imageWithTransform:transform sourceImage:newImage zoomScale:self.zoomScale cropSize:self.cropSize imageViewSize:self.imageLayerSize];
+    return newImage;
 }
 
-
--(CGImageRef)cgImageWithFixedOrientation:(UIImage *)img {
+-(UIImage *)imageWithFixedOrientation:(UIImage *)img{
     
     CGImageRef cgImage = [img CGImage];
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
@@ -90,11 +83,11 @@
     }
     
     if (img.imageOrientation == UIImageOrientationUp) {
-        return img.CGImage;
+        return img;
     }
     
-    CGFloat width  = img.size.width;
-    CGFloat height = img.size.height;
+    CGFloat width  = CGImageGetWidth(cgImage);
+    CGFloat height = CGImageGetHeight(cgImage);
     
     CGAffineTransform transform = CGAffineTransformIdentity;
     
@@ -166,32 +159,32 @@
             break;
     }
     
-    CGImageRelease(cgImage);
     // And now we just create a new UIImage from the drawing context
     CGImageRef newCGImg = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
-    
-    return newCGImg;
+    UIImage *newImage = [[UIImage alloc] initWithCGImage:newCGImg];
+    CGImageRelease(newCGImg);
+    return newImage;
 }
 
--(CGImageRef)transformedImage:(CGAffineTransform)transform
-                             :(CGImageRef)sourceImage
-                             :(CGFloat) zoomScale
-                             :(CGSize) sourceSize
-                             :(CGSize) cropSize
-                             :(CGSize) imageViewSize {
-    CGFloat expectedWidth = floor((sourceSize.width / imageViewSize.width) * cropSize.width) / zoomScale;
-    CGFloat expectedHeight = floor((sourceSize.height / imageViewSize.height) * cropSize.height) / zoomScale;
+-(UIImage *)imageWithTransform:(CGAffineTransform)transform
+                   sourceImage:(UIImage *)sourceImage
+                     zoomScale:(CGFloat) zoomScale
+                      cropSize:(CGSize) cropSize
+                 imageViewSize:(CGSize) imageViewSize
+{
+    CGFloat expectedWidth = floor((sourceImage.size.width / imageViewSize.width) * cropSize.width) / zoomScale;
+    CGFloat expectedHeight = floor((sourceImage.size.height / imageViewSize.height) * cropSize.height) / zoomScale;
     CGSize outputSize = CGSizeMake(expectedWidth, expectedHeight);
     int bitmapBytesPerRow = 0;
     
     CGContextRef context = CGBitmapContextCreate(NULL,
                                                  (int)outputSize.width,
                                                  (int)outputSize.height,
-                                                 CGImageGetBitsPerComponent(sourceImage),
+                                                 CGImageGetBitsPerComponent(sourceImage.CGImage),
                                                  bitmapBytesPerRow,
-                                                 CGImageGetColorSpace(sourceImage),
-                                                 CGImageGetBitmapInfo(sourceImage)
+                                                 CGImageGetColorSpace(sourceImage.CGImage),
+                                                 CGImageGetBitmapInfo(sourceImage.CGImage)
                                                  );
     if (context == nil) {
         return nil;
@@ -213,14 +206,14 @@
     CGContextDrawImage(context, CGRectMake(-imageViewSize.width/2.0,
                                            -imageViewSize.height/2.0,
                                            imageViewSize.width,
-                                           imageViewSize.height), sourceImage);
+                                           imageViewSize.height), sourceImage.CGImage);
     
     CGImageRef resultRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
-    
-    return resultRef;
+    UIImage *newImage = [[UIImage alloc] initWithCGImage:resultRef];
+    CGImageRelease(resultRef);
+    return newImage;
 }
-
 
 
 
