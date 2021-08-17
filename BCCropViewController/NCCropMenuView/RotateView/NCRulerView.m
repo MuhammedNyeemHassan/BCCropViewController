@@ -26,20 +26,26 @@
     [super awakeFromNib];
     self.circleView.layer.cornerRadius = 16.5*RATIO;
     self.circleView.layer.borderColor = [UIColor colorWithHex:@"#373C40"].CGColor;
+    self.rotateRulerView.hidden = NO;
+    self.skewRulerView.hidden = YES;
+
 
 }
 
 -(void)setIsSkew:(BOOL)isSkew{
     _isSkew = isSkew;
-    if (self.isSkew) {
-        self.rotateRulerView.rangeFrom = SKEW_ROTATE_RULER_MIN_VALUE;
-        self.rotateRulerView.rangeLength = SKEW_ROTATE_RULER_MAX_VALUE - SKEW_ROTATE_RULER_MIN_VALUE;
-        self.rotateRulerView.rulerWidth = (SKEW_ROTATE_RULER_MAX_VALUE - SKEW_ROTATE_RULER_MIN_VALUE) * 11;
-    }else{
-        self.rotateRulerView.rangeFrom = ROTATE_RULER_MIN_VALUE;
-        self.rotateRulerView.rangeLength = ROTATE_RULER_MAX_VALUE - ROTATE_RULER_MIN_VALUE;
-        self.rotateRulerView.rulerWidth = (ROTATE_RULER_MAX_VALUE - ROTATE_RULER_MIN_VALUE) * 11;
-    }
+    self.skewRulerView.hidden = !_isSkew;
+    self.rotateRulerView.hidden = _isSkew;
+
+//    if (self.isSkew) {
+//        self.skewRulerView.rangeFrom = SKEW_ROTATE_RULER_MIN_VALUE;
+//        self.skewRulerView.rangeLength = SKEW_ROTATE_RULER_MAX_VALUE - SKEW_ROTATE_RULER_MIN_VALUE;
+//        self.skewRulerView.rulerWidth = (SKEW_ROTATE_RULER_MAX_VALUE - SKEW_ROTATE_RULER_MIN_VALUE) * 11;
+//    }else{
+//        self.rotateRulerView.rangeFrom = ROTATE_RULER_MIN_VALUE;
+//        self.rotateRulerView.rangeLength = ROTATE_RULER_MAX_VALUE - ROTATE_RULER_MIN_VALUE;
+//        self.rotateRulerView.rulerWidth = (ROTATE_RULER_MAX_VALUE - ROTATE_RULER_MIN_VALUE) * 11;
+//    }
 }
 
 -(void)setAngleText:(NSString *)angleText{
@@ -57,6 +63,15 @@
     
 }
 
+-(void)skewRulerSetup{
+    self.skewRulerView.rangeFrom = SKEW_ROTATE_RULER_MIN_VALUE;
+    self.skewRulerView.rangeLength = SKEW_ROTATE_RULER_MAX_VALUE - SKEW_ROTATE_RULER_MIN_VALUE;
+    self.skewRulerView.rulerWidth = (SKEW_ROTATE_RULER_MAX_VALUE - SKEW_ROTATE_RULER_MIN_VALUE) * 11;
+    [self.skewRulerView.pointerImageView removeFromSuperview];
+    [self.skewRulerView setFont:[UIFont systemFontOfSize:0] forMarkType:CRRulerMarkTypeAll];
+    _skewRulerView.delegate = self;
+}
+
 -(void) setRulerInitialValue {
     [self.rotateRulerView setValue:self.values animated:NO];
     [self setLblText:(int)self.rotateRulerView.value withTag:211];
@@ -66,6 +81,12 @@
     self.angleText = [NSString stringWithFormat:@"%d",rulerValue];
     [self.rotateRulerView setValue:rulerValue animated:NO];
 }
+
+-(void)setSkewRulerValue:(int)rulerValue{
+    self.angleText = [NSString stringWithFormat:@"%d",rulerValue];
+    [self.skewRulerView setValue:rulerValue animated:NO];
+}
+
 
 - (void)rotateContentNintyDegreesWithClockWise:(BOOL)clockWise {
     self.userInteractionEnabled = NO;
@@ -118,8 +139,11 @@
     NCCRRulerControl *ruler = (NCCRRulerControl *)sender;
     if ([ruler isEqual:self.rotateRulerView]) {
         [self setLblText:ruler.value withTag:211];
+        [self setAdjustValues];
+    }else{
+        [self setLblTextForSkew:ruler.value withTag:211];
+        [self setAdjustSkewValues];
     }
-    [self setAdjustValues];
 }
 
 -(void) setLblText:(CGFloat)value withTag:(int)tag
@@ -152,9 +176,47 @@
     }
 }
 
+-(void) setLblTextForSkew:(CGFloat)value withTag:(int)tag
+{
+//    NSLog(@"------------------------------------%f",value);
+    UILabel *lbl = [self viewWithTag:tag];
+    
+    if(value>=0){
+        value+=0.04;
+        lbl.text = [NSString stringWithFormat:@"%d\u00b0", (int)ceilf(value)];
+    }
+    else{
+        value-=.04;
+        lbl.text = [NSString stringWithFormat:@"%d\u00b0",(int) floorf(value)];
+    }
+    
+    if (tag == 211) {
+        
+//        CGFloat lowerThrashHold=-0.1500f;
+//        CGFloat upperThrashHold=0.1500f;
+//
+//        CGFloat ceilValue = ceilf(value);
+//        CGFloat floorValue = floorf(value);
+//
+//        if(
+//
+        
+        
+        skewValue = value;
+    }
+}
+
+
 -(void) setAdjustValues {
     [self.delegate setAdjustRotate:rotateValue];
 }
+
+
+-(void) setAdjustSkewValues {
+    [self.delegate setSkewValue:skewValue];
+}
+
+
 
 -(void)setInitialValues {
     rotateValue = self.values;

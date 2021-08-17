@@ -207,11 +207,11 @@
         skewView.delegate = self;
         [_optionsContainerView addSubview:skewView];
         skewType = HorizontalSkew;
+        [rulerView setIsSkew:YES];
+        [rulerView setSkewRulerValue:0];
     }
     [self hideAllOtherOptions];
     [skewView setAlpha:1.0];
-    [rulerView setIsSkew:YES];
-    
     switch (skewType) {
         case HorizontalSkew:
             [self applyHorizontalSkew];
@@ -235,6 +235,7 @@
         rulerView = [self loadFromNib:@"NCRulerView" classToLoad:[NCRulerView class]];
         rulerView.frame = rulerViewContainer.bounds;
         [rulerView rulerSetup];
+        [rulerView skewRulerSetup];
         rulerView.delegate = self;
         [rulerViewContainer addSubview:rulerView];
         NSString *str =  [[NSNumber numberWithInt:(int)0] stringValue];
@@ -344,13 +345,13 @@
 -(void)applyHorizontalSkew{
     skewType = HorizontalSkew;
     [rulerView setIsSkew:YES];
-    [rulerView setRulerValue:skewH];
+    [rulerView setSkewRulerValue:skewH];
 }
 
 -(void)applyVerticalSkew{
     skewType = VerticalSkew;
     [rulerView setIsSkew:YES];
-    [rulerView setRulerValue:skewV];
+    [rulerView setSkewRulerValue:skewV];
 }
 
 -(void)apply360Skew{
@@ -368,6 +369,26 @@
 
 #pragma mark Rulerview Delegates
 
+-(void)setSkewValue:(CGFloat)rValues{
+    if (!skewView) {
+        return;
+    }
+    if(skewType == HorizontalSkew){
+        NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+        str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+        rulerView.angleText = str;
+        [_cropCanvasView skewImageLayerHorizontally:rValues shouldReset:NO];
+        skewH = rValues;
+    }
+    else{
+        NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+        str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+        rulerView.angleText = str;
+        [_cropCanvasView skewImageLayerVertically:rValues shouldReset:NO];
+        skewV = rValues;
+    }
+}
+
 -(void)setAdjustRotate:(CGFloat)rValues{
     
     
@@ -375,46 +396,15 @@
     if ((rValues <= 0.1 && rValues >= -0.1) || rValues >= 180.0f ||rValues <= -180.0f) {
         [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
     }
-    if (skewView.alpha) {
-        if(skewType == Skew360)
-        {
-            if (count>2) {
-                NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
-                str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-                rulerView.angleText = str;
-                [_cropCanvasView rotateImageLayer:rValues];
-                skew360 =rValues;
-            }else{
-                count ++;
-            }
-        }
-        else if(skewType == HorizontalSkew){
-            NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            rulerView.angleText = str;
-            [_cropCanvasView skewImageLayerHorizontally:rValues shouldReset:NO];
-            skewH = rValues;
-        }
-        else{
-            NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            rulerView.angleText = str;
-            [_cropCanvasView skewImageLayerVertically:rValues shouldReset:NO];
-            skewV = rValues;
-        }
+    if (count>2) {
+        NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
+        str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
+        rulerView.angleText = str;
+        [_cropCanvasView rotateImageLayer:rValues];
+        skew360 =rValues;
     }else{
-        if (count>2) {
-            NSString *str =  [[NSNumber numberWithInt:(int)rValues] stringValue];
-            str = [str stringByAppendingFormat:@"%@",@"\u00B0"];
-            rulerView.angleText = str;
-            [_cropCanvasView rotateImageLayer:rValues];
-            skew360 =rValues;
-        }else{
-            count ++;
-        }
+        count ++;
     }
-    
-
 }
 
 -(void)update{

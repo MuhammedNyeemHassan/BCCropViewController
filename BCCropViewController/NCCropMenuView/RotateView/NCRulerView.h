@@ -12,6 +12,8 @@
 
 @protocol AdjustRotateDelegate
 -(void) setAdjustRotate:(CGFloat)rValues;
+-(void) setSkewValue:(CGFloat)rValues;
+
 -(void) rotateAntiClockWise:(BOOL) flag;
 -(void) rotateClockWise:(BOOL) flag;
 -(void) update;
@@ -20,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NCRulerView : UIView {
     CGFloat rotateValue;
+    CGFloat skewValue;
+
     NSTimer *timer;
 }
 @property (weak, nonatomic) id<AdjustRotateDelegate>delegate;
@@ -30,14 +34,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) int values;
 @property (weak, nonatomic) IBOutlet NCCRRulerControl *rotateRulerView;
+@property (weak, nonatomic) IBOutlet NCCRRulerControl *skewRulerView;
+
 @property (weak, nonatomic) IBOutlet UIView *roundView;
 @property (weak, nonatomic) IBOutlet UIView *circleView;
 @property (weak, nonatomic) IBOutlet UILabel *angelLabel;
 
 -(void) rulerSetup;
+-(void)skewRulerSetup;
 -(void) setInitialValues;
 -(void) setLblText:(CGFloat)value withTag:(int)tag;
 -(void)setRulerValue:(int)rulerValue;
+-(void)setSkewRulerValue:(int)rulerValue;
+
 - (IBAction)rulerAction:(id)sender;
 - (IBAction)rulerValueChangeBtnAction:(UIButton *)sender;
 - (IBAction)rotateRulerDragExitAction:(UIButton *)sender;

@@ -28,7 +28,7 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7XN-TD-HTY">
                     <rect key="frame" x="0.0" y="38" width="414" height="35"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zhl-jl-jFe" customClass="NCCRRulerControl">
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zhl-jl-jFe" customClass="NCCRRulerControl">
                             <rect key="frame" x="0.0" y="4.5" width="414" height="26"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <color key="tintColor" red="0.21568627450980393" green="0.22745098039215686" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -37,6 +37,17 @@
                             </constraints>
                             <connections>
                                 <action selector="rulerAction:" destination="iN0-l3-epB" eventType="valueChanged" id="c9K-9Z-scJ"/>
+                            </connections>
+                        </view>
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WSL-4r-ONt" customClass="NCCRRulerControl">
+                            <rect key="frame" x="0.0" y="4.5" width="414" height="26"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="tintColor" red="0.2156862745" green="0.2274509804" blue="0.25490196079999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="WSL-4r-ONt" secondAttribute="height" multiplier="207:13" id="C0F-bQ-nxs"/>
+                            </constraints>
+                            <connections>
+                                <action selector="rulerAction:" destination="iN0-l3-epB" eventType="valueChanged" id="AJQ-Cj-bCS"/>
                             </connections>
                         </view>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="RulerLeftTransparentBg" translatesAutoresizingMaskIntoConstraints="NO" id="m4n-YE-Dgc">
@@ -65,11 +76,16 @@
                         <constraint firstAttribute="bottom" secondItem="m4n-YE-Dgc" secondAttribute="bottom" id="DdS-wh-l2u"/>
                         <constraint firstItem="Zhl-jl-jFe" firstAttribute="centerX" secondItem="7XN-TD-HTY" secondAttribute="centerX" id="FTu-UP-lHA"/>
                         <constraint firstItem="m4n-YE-Dgc" firstAttribute="height" secondItem="7XN-TD-HTY" secondAttribute="height" id="FcE-VO-BZ2"/>
+                        <constraint firstItem="WSL-4r-ONt" firstAttribute="width" secondItem="WSL-4r-ONt" secondAttribute="height" multiplier="207:13" id="JNn-Eo-Npj"/>
                         <constraint firstAttribute="width" secondItem="7XN-TD-HTY" secondAttribute="height" multiplier="414:35" id="KLl-ch-OJV"/>
                         <constraint firstItem="Zhl-jl-jFe" firstAttribute="centerY" secondItem="7XN-TD-HTY" secondAttribute="centerY" id="L0B-Pz-9c4"/>
                         <constraint firstItem="m4n-YE-Dgc" firstAttribute="leading" secondItem="7XN-TD-HTY" secondAttribute="leading" id="N5J-Ue-FNF"/>
                         <constraint firstItem="m4n-YE-Dgc" firstAttribute="top" secondItem="7XN-TD-HTY" secondAttribute="top" id="QBW-mj-OgZ"/>
+                        <constraint firstItem="Zhl-jl-jFe" firstAttribute="trailing" secondItem="WSL-4r-ONt" secondAttribute="trailing" id="VAc-dd-Jhw"/>
+                        <constraint firstItem="Zhl-jl-jFe" firstAttribute="bottom" secondItem="WSL-4r-ONt" secondAttribute="bottom" id="gDI-hR-qRc"/>
                         <constraint firstAttribute="bottom" secondItem="ccC-HB-kY7" secondAttribute="bottom" id="iY1-3W-yt8"/>
+                        <constraint firstItem="Zhl-jl-jFe" firstAttribute="leading" secondItem="WSL-4r-ONt" secondAttribute="leading" id="mJx-dH-jbu"/>
+                        <constraint firstItem="Zhl-jl-jFe" firstAttribute="top" secondItem="WSL-4r-ONt" secondAttribute="top" id="nRc-4l-6Vv"/>
                         <constraint firstItem="ccC-HB-kY7" firstAttribute="top" secondItem="7XN-TD-HTY" secondAttribute="top" id="pAU-YQ-gTt"/>
                         <constraint firstItem="Zhl-jl-jFe" firstAttribute="width" secondItem="7XN-TD-HTY" secondAttribute="width" id="rP2-8L-Bcc"/>
                         <constraint firstAttribute="trailing" secondItem="ccC-HB-kY7" secondAttribute="trailing" id="tTi-w5-oia"/>
@@ -145,6 +161,7 @@
                 <outlet property="circleView" destination="Nfb-Vo-32L" id="em8-dv-AJU"/>
                 <outlet property="rotateRulerView" destination="Zhl-jl-jFe" id="ckG-qb-NLz"/>
                 <outlet property="roundView" destination="IKx-ju-peA" id="lQi-ex-nNB"/>
+                <outlet property="skewRulerView" destination="WSL-4r-ONt" id="V3R-9p-HMD"/>
             </connections>
             <point key="canvasLocation" x="-24" y="38.680659670164921"/>
         </view>

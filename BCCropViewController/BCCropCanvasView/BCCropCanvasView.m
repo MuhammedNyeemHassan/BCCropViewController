@@ -788,7 +788,9 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
 }
 
 - (void)skewImageLayerHorizontally:(CGFloat)skewAngle shouldReset:(BOOL)reset {
-    
+//    if (skewAngle >50.0f || skewAngle < -50.0f) {
+//        return;
+//    }
     skewAngleH = skewAngle / 10.0;
     skewHorizontalValue = skewAngle;
     CGFloat value = skewAngle;
@@ -840,7 +842,9 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
 }
 
 - (void)skewImageLayerVertically:(CGFloat)skewAngle shouldReset:(BOOL)reset {
-    
+//    if (skewAngle >50.0f || skewAngle < -50.0f) {
+//        return;
+//    }
     skewAngleV = skewAngle / 10.0;
     skewVerticalValue = skewAngle;
     CGFloat value = skewAngle;
