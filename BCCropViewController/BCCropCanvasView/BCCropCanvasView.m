@@ -646,26 +646,26 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     }
     
     //Calculate origin change
-    CGFloat translationX = (frame.size.width - newWidth) * anchor.x;
-    CGFloat translationY = (frame.size.height - newHeight) * anchor.y;
-
-    CGPoint newOrigin = CGPointMake(frame.origin.x + translationX, frame.origin.y + translationY);
-
-    //Left-Right bound check
-    if (!(newOrigin.x < _cropLayer.frame.origin.x)) {
-        newOrigin.x = _cropLayer.frame.origin.x;
-    }
-    else if (!((newOrigin.x + newWidth) > (_cropLayer.frame.origin.x + _cropLayer.frame.size.width))) {
-        newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - newWidth;
-    }
-
-    //Top-Down bound check
-    if (!(newOrigin.y < _cropLayer.frame.origin.y)) {
-        newOrigin.y = _cropLayer.frame.origin.y;
-    }
-    else if (!((newOrigin.y + newHeight) > (_cropLayer.frame.origin.y + _cropLayer.frame.size.height))) {
-        newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - newHeight;
-    }
+//    CGFloat translationX = (frame.size.width - newWidth) * anchor.x;
+//    CGFloat translationY = (frame.size.height - newHeight) * anchor.y;
+//
+//    CGPoint newOrigin = CGPointMake(frame.origin.x + translationX, frame.origin.y + translationY);
+//
+//    //Left-Right bound check
+//    if (!(newOrigin.x < _cropLayer.frame.origin.x)) {
+//        newOrigin.x = _cropLayer.frame.origin.x;
+//    }
+//    else if (!((newOrigin.x + newWidth) > (_cropLayer.frame.origin.x + _cropLayer.frame.size.width))) {
+//        newOrigin.x = _cropLayer.frame.origin.x + _cropLayer.frame.size.width - newWidth;
+//    }
+//
+//    //Top-Down bound check
+//    if (!(newOrigin.y < _cropLayer.frame.origin.y)) {
+//        newOrigin.y = _cropLayer.frame.origin.y;
+//    }
+//    else if (!((newOrigin.y + newHeight) > (_cropLayer.frame.origin.y + _cropLayer.frame.size.height))) {
+//        newOrigin.y = _cropLayer.frame.origin.y + _cropLayer.frame.size.height - newHeight;
+//    }
     
     return CGRectIntegral(CGRectMake(0, 0, newWidth, newHeight));
 }
@@ -676,9 +676,9 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     CGRect previousCropLayerFrame = _cropLayer.frame;
     
     [_cropLayer setShouldAnimateResizing:YES];
-    _cropLayer.frame = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(previousCropLayerFrame.size, CGRectMake(kMinimumCropAreaInset, kMinimumCropAreaInset, (self.bounds.size.width - (kMinimumCropAreaInset * 2.0)), (self.bounds.size.height - (kMinimumCropAreaInset * 2.0)))));
+    CGRect newCropFrame = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(previousCropLayerFrame.size, CGRectMake(kMinimumCropAreaInset, kMinimumCropAreaInset, (self.bounds.size.width - (kMinimumCropAreaInset * 2.0)), (self.bounds.size.height - (kMinimumCropAreaInset * 2.0)))));
     
-    CGFloat scale = _cropLayer.frame.size.width / previousCropLayerFrame.size.width;
+    CGFloat scale = MIN(newCropFrame.size.width / previousCropLayerFrame.size.width, newCropFrame.size.height / previousCropLayerFrame.size.height);
     
     //Zoom in/out with respect to current crop center
     CGPoint cropLayerCenter = CGPointMake(CGRectGetMidX(previousCropLayerFrame), CGRectGetMidY(previousCropLayerFrame));
@@ -691,15 +691,16 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     //Move it to center relative to previous crop frame
     CGPoint scaledImageLayerZoomCenter = CGPointMake(imageLayerCurrentAnchorPosition.x * scaledImageLayerFrame.size.width, imageLayerCurrentAnchorPosition.y * scaledImageLayerFrame.size.height);
     CGPoint imageLayerContainerLayerCenter = CGPointMake(CGRectGetMidX(_imageLayerContainerLayer.bounds), CGRectGetMidY(_imageLayerContainerLayer.bounds));
-    scaledImageLayerFrame.origin.x = imageLayerContainerLayerCenter.x - scaledImageLayerZoomCenter.x;
-    scaledImageLayerFrame.origin.y = imageLayerContainerLayerCenter.y - scaledImageLayerZoomCenter.y;
+    CGFloat centerXoffset = scaledImageLayerZoomCenter.x - CGRectGetMidX(scaledImageLayerFrame);
+    CGFloat centerYoffset = scaledImageLayerZoomCenter.y - CGRectGetMidY(scaledImageLayerFrame);
     
-    CGPoint currentPosition = _imageLayer.position;
+    CGPoint currentPosition = CGPointMake(imageLayerContainerLayerCenter.x - centerXoffset, imageLayerContainerLayerCenter.y - centerYoffset);
     _imageLayer.bounds = scaledImageLayerFrame;
     shapeLayer.bounds = _imageLayer.bounds;
     _imageLayer.position = currentPosition;
     shapeLayer.position = _imageLayer.position;
     _fitImageFrame = scaledImageLayerFrame;
+    _cropLayer.frame = newCropFrame;
     [self resetShapeLayerPath];
     
     
