@@ -364,7 +364,7 @@
 #pragma mark CropView Delegates
 
 -(void)cropView:(NCCropView *)cropView didSelectRatio:(NSString *)ratio{
-
+    _cropCanvasView.cropAspectRatio = ratio;
 }
 
 #pragma mark Rulerview Delegates

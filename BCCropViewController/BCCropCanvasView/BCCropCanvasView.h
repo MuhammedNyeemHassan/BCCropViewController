@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BCCropCanvasView : UIView
 
 @property (strong, nonatomic) UIImage *inputImage;
+@property (strong, nonatomic) NSString *cropAspectRatio;
 
 - (void)rotateImageLayer:(CGFloat)angle;
 - (void)skewImageLayerHorizontally:(CGFloat)skewAngle shouldReset:(BOOL)reset;

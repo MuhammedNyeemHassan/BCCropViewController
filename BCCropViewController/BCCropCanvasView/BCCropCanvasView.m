@@ -79,6 +79,9 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 @property CGRect fitImageFrame;
 @property CGRect lastFitImageFrame;
+
+@property CGFloat aspectRatioWidth;
+@property CGFloat aspectRatioHeight;
 @end
 
 @implementation BCCropCanvasView
@@ -152,6 +155,93 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     skewHorizontalValue = 0.0;
     skewVerticalValue = 0.0;
     [self applySkewInImage:_inputImage];
+}
+
+- (void)setCropAspectRatio:(NSString *)cropAspectRatio {
+    _cropAspectRatio = cropAspectRatio;
+    
+    if (_cropAspectRatio.length > 0) {
+        
+        NSArray *elements = [_cropAspectRatio componentsSeparatedByString:@":"];
+        _aspectRatioWidth = (CGFloat)[[elements firstObject] floatValue];
+        _aspectRatioHeight = (CGFloat)[[elements lastObject] floatValue];
+        
+        _cropLayer.frame = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(CGSizeMake(_aspectRatioWidth, _aspectRatioHeight), CGRectMake(kMinimumCropAreaInset, kMinimumCropAreaInset, (self.bounds.size.width - (kMinimumCropAreaInset * 2.0)), (self.bounds.size.height - (kMinimumCropAreaInset * 2.0)))));
+        
+        CGPoint center = _cropLayer.position;
+        if([self IsIntersectedCropLayer:CGPointZero isCropResizing:NO])
+        {
+            // position scroll view
+            CGAffineTransform scaleTransform = [self getScaleTransform];
+            UIBezierPath *tempBezierPath = [UIBezierPath bezierPathWithCGPath:bezierPathForShapeLayer.CGPath];
+            [tempBezierPath applyTransform:scaleTransform];
+            CGRect boundingBox = CGPathGetBoundingBox(tempBezierPath.CGPath);
+            
+            
+            CGRect fittedImageRect = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(_inputImage.size, _cropLayer.bounds));
+            CGFloat scaleX = fittedImageRect.size.width / _inputImage.size.width;
+            CGFloat scaleY = fittedImageRect.size.height / _inputImage.size.height;
+            CGAffineTransform scale = CGAffineTransformMakeScale(scaleX, scaleY);
+            CGFloat widthDiff = _imageLayer.frame.size.width - boundingBox.size.width;
+            CGFloat heightDiff = _imageLayer.frame.size.height - boundingBox.size.height;
+            
+            widthDiff = (MAX(imageBottomRightPoint.x, imageTopRightPoint.x) - _inputImage.size.width) * 2;
+            heightDiff = (MAX(imageTopLeftPoint.y, imageTopRightPoint.y) - _inputImage.size.height) * 2;
+            
+            CGSize sizeDiff = CGSizeMake(widthDiff, heightDiff);
+            sizeDiff = CGSizeApplyAffineTransform(sizeDiff, scale);
+            sizeDiff = CGSizeZero;
+            CGFloat width = fabs(cos(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(sin(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height);
+            CGFloat height = fabs(sin(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(cos(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height);
+            if(_inputImage.size.width > _inputImage.size.height)
+                width = _inputImage.size.width / _inputImage.size.height * height;
+            else
+                height = _inputImage.size.height / _inputImage.size.width * width;
+
+
+            [CATransaction begin];
+            [CATransaction setDisableActions:YES];
+            CGRect newBounds = CGRectMake(0, 0, width, height);
+            _imageLayer.bounds = newBounds;
+            shapeLayer.bounds = newBounds;
+            _imageLayer.position = center;
+            shapeLayer.position = center;
+            _fitImageFrame = newBounds;
+            [self resetShapeLayerPath];
+            [CATransaction commit];
+        }
+        
+//        if (_cropLayer.frame.origin.x < _imageLayer.frame.origin.x) {
+//
+//            CGFloat widthOffset = _cropLayer.frame.size.width - _imageLayer.frame.size.width;
+//
+//            CGPoint currentPosition = _imageLayer.position;
+//            CGSize currentSize = _imageLayer.bounds.size;
+//
+//            CGFloat newWidth = _imageLayer.bounds.size.width + widthOffset;
+//            CGFloat newHeight = newWidth * currentSize.height / currentSize.width;
+//
+//            _imageLayer.bounds = CGRectMake(0, 0, newWidth, newHeight);
+//            _imageLayer.position = currentPosition;
+//        }
+//
+//        if (_cropLayer.frame.origin.y < _imageLayer.frame.origin.y) {
+//
+//            CGFloat heightOffset = _cropLayer.frame.size.height - _imageLayer.frame.size.height;
+//
+//            CGPoint currentPosition = _imageLayer.position;
+//            CGSize currentSize = _imageLayer.bounds.size;
+//
+//            CGFloat newHeight = _imageLayer.bounds.size.height + heightOffset;
+//            CGFloat newWidth = newHeight * currentSize.width / currentSize.height;
+//
+//            _imageLayer.bounds = CGRectMake(0, 0, newWidth, newHeight);
+//            _imageLayer.position = currentPosition;
+//        }
+    }
+    else {
+        [self resetCropLayerFrame];
+    }
 }
 
 //MARK:- Prepare Layers
@@ -1002,9 +1092,9 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
                 
                 break;
             }
-                
-            case BCCropCornerTypeLowerLeft: {
-                possibleCropLayerWidth = possibleCropLayerWidth - newPoint.x;
+                    
+                case BCCropCornerTypeLowerLeft: {
+                    possibleCropLayerWidth = possibleCropLayerWidth - newPoint.x;
                 possibleCropLayerHeight = possibleCropLayerHeight + newPoint.y;
                 
                 if (possibleCropLayerWidth < kMinimumCropAreaSide) {
