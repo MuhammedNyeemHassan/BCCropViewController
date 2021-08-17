@@ -191,8 +191,8 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             CGSize sizeDiff = CGSizeMake(widthDiff, heightDiff);
             sizeDiff = CGSizeApplyAffineTransform(sizeDiff, scale);
             sizeDiff = CGSizeZero;
-            CGFloat width = fabs(cos(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(sin(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height);
-            CGFloat height = fabs(sin(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(cos(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height);
+            CGFloat width = fabs(cos(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(sin(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height) + 1;
+            CGFloat height = fabs(sin(rotationAngle)) * (_cropLayer.frame.size.width + sizeDiff.width) + fabs(cos(rotationAngle)) * (_cropLayer.frame.size.height + sizeDiff.height) + 1;
             if(_inputImage.size.width > _inputImage.size.height)
                 width = _inputImage.size.width / _inputImage.size.height * height;
             else
