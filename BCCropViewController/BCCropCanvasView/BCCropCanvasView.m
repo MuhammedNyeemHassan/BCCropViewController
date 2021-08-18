@@ -70,7 +70,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 }
 @property (strong, nonatomic) CIContext *context;
 
-@property (strong, nonatomic) CALayer *imageLayerContainerLayer;
 @property (strong, nonatomic) CALayer *imageLayer;
 @property (strong, nonatomic) BCCropLayer *cropLayer;
 
@@ -110,7 +109,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     self.backgroundColor = UIColor.darkGrayColor;
     self.clipsToBounds = YES;
     self.context = [CIContext context];
-    [self prepareImageLayerContainerLayer];
     [self prepareImageLayer];
     [self prepareShapeLayer];
     [self prepareCropLayer];
@@ -122,11 +120,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    _imageLayerContainerLayer.frame = self.layer.bounds;
-    [CATransaction commit];
     
     if (CGRectIsEmpty(_fitImageFrame) && _inputImage) {
         
@@ -245,22 +238,13 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
 }
 
 //MARK:- Prepare Layers
-- (void)prepareImageLayerContainerLayer {
-    
-    _imageLayerContainerLayer = [[CALayer alloc] init];
-    _imageLayerContainerLayer.contentsGravity = kCAGravityResize;
-    _imageLayerContainerLayer.frame = self.layer.bounds;
-    
-    [self.layer addSublayer:_imageLayerContainerLayer];
-}
-
 - (void)prepareImageLayer {
     
     _imageLayer = [[CALayer alloc] init];
     _imageLayer.contentsGravity = kCAGravityResize;
     _imageLayer.shouldRasterize = YES;
     _imageLayer.rasterizationScale = UIScreen.mainScreen.scale;
-    [_imageLayerContainerLayer addSublayer:_imageLayer];
+    [self.layer addSublayer:_imageLayer];
     rotationAngle = 0;
 }
 
@@ -270,7 +254,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     shapeLayer.shouldRasterize = YES;
     shapeLayer.rasterizationScale = UIScreen.mainScreen.scale;
     shapeLayer.geometryFlipped = YES;
-    [_imageLayerContainerLayer addSublayer:shapeLayer];
+    [self.layer addSublayer:shapeLayer];
     
     shapeLayer.fillColor = [UIColor.blueColor colorWithAlphaComponent:0.4].CGColor;
     bezierPathForShapeLayer = [[UIBezierPath alloc] init];
@@ -344,102 +328,88 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     if (sender.state == UIGestureRecognizerStateChanged) {
         if (cropCornerSelected) {
+            
             CGPoint location = [sender locationInView:sender.view];
+            CGFloat deltaWidth = location.x - lastLocation.x;
+            CGFloat deltaHeight = location.y - lastLocation.y;
+            CGRect cropRect = _cropLayer.frame;
             
-            CGFloat xPannedDistance = location.x - initialLocation.x;
-            CGFloat yPannedDistance = location.y - initialLocation.y;
-            
-            CGFloat newCropLayerWidth = initialCropLayerFrame.size.width;
-            CGFloat newCropLayerHeight = initialCropLayerFrame.size.height;
-            
-            CGPoint newCropLayerOrigin = initialCropLayerFrame.origin;
-            
-            if ([self IsIntersectedCropLayer:CGPointMake(xPannedDistance, 0) isCropResizing:YES]) {
-                location.x = lastLocation.x;
-                xPannedDistance = location.x - initialLocation.x;
+            CGFloat changedWidth = 0;
+            CGFloat changedHeight = 0;
+            if([self IsCropCornerPanningPossibleAtX:deltaWidth])
+            {
+                changedWidth = deltaWidth;
             }
             
-            if ([self IsIntersectedCropLayer:CGPointMake(0, yPannedDistance) isCropResizing:YES]) {
-                location.y = lastLocation.y;
-                yPannedDistance = location.y - initialLocation.y;
+            if([self IsCropCornerPanningPossibleAtY:deltaHeight])
+            {
+                changedHeight = deltaHeight;
             }
-
+            
             switch (selectedCropCorner) {
-                    
-                case BCCropCornerTypeUpperLeft: {
-                    newCropLayerWidth = newCropLayerWidth - xPannedDistance;
-                    newCropLayerHeight = newCropLayerHeight - yPannedDistance;
-                    
-                    if (newCropLayerWidth < kMinimumCropAreaSide) {
-                        newCropLayerWidth = kMinimumCropAreaSide;
-                        xPannedDistance = initialCropLayerFrame.size.width - kMinimumCropAreaSide;
+                case BCCropCornerTypeUpperLeft:
+                {
+                    cropRect.size.width -= changedWidth;
+                    cropRect.size.height -= changedHeight;
+                    if (cropRect.size.width < kMinimumCropAreaSide) {
+                        cropRect.size.width = kMinimumCropAreaSide;
+                        changedWidth = _cropLayer.frame.size.width - kMinimumCropAreaSide;
                     }
-                    if (newCropLayerHeight < kMinimumCropAreaSide) {
-                        newCropLayerHeight = kMinimumCropAreaSide;
-                        yPannedDistance = initialCropLayerFrame.size.height - kMinimumCropAreaSide;
+                    if (cropRect.size.height < kMinimumCropAreaSide) {
+                        cropRect.size.height = kMinimumCropAreaSide;
+                        changedHeight = _cropLayer.frame.size.height - kMinimumCropAreaSide;
                     }
-                    
-                    newCropLayerOrigin.x = newCropLayerOrigin.x + xPannedDistance;
-                    newCropLayerOrigin.y = newCropLayerOrigin.y + yPannedDistance;
+                    cropRect.origin.x += changedWidth;
+                    cropRect.origin.y += changedHeight;
                     break;
                 }
-                    
-                case BCCropCornerTypeUpperRight: {
-                    newCropLayerWidth = newCropLayerWidth + xPannedDistance;
-                    newCropLayerHeight = newCropLayerHeight - yPannedDistance;
-                    
-                    if (newCropLayerWidth < kMinimumCropAreaSide) {
-                        newCropLayerWidth = kMinimumCropAreaSide;
+                case BCCropCornerTypeUpperRight:
+                {
+                    cropRect.size.width += changedWidth;
+                    cropRect.size.height -= changedHeight;
+                    if (cropRect.size.width < kMinimumCropAreaSide) {
+                        cropRect.size.width = kMinimumCropAreaSide;
                     }
-                    if (newCropLayerHeight < kMinimumCropAreaSide) {
-                        newCropLayerHeight = kMinimumCropAreaSide;
-                        yPannedDistance = initialCropLayerFrame.size.height - kMinimumCropAreaSide;
+                    if (cropRect.size.height < kMinimumCropAreaSide) {
+                        cropRect.size.height = kMinimumCropAreaSide;
+                        changedHeight = _cropLayer.frame.size.height - kMinimumCropAreaSide;
                     }
-                    
-                    newCropLayerOrigin.y = newCropLayerOrigin.y + yPannedDistance;
-                    
+                    cropRect.origin.y += changedHeight;
                     break;
                 }
-                    
-                case BCCropCornerTypeLowerLeft: {
-                    newCropLayerWidth = newCropLayerWidth - xPannedDistance;
-                    newCropLayerHeight = newCropLayerHeight + yPannedDistance;
-                    
-                    if (newCropLayerWidth < kMinimumCropAreaSide) {
-                        newCropLayerWidth = kMinimumCropAreaSide;
-                        xPannedDistance = initialCropLayerFrame.size.width - kMinimumCropAreaSide;
+                case BCCropCornerTypeLowerRight:
+                {
+                    cropRect.size.width += changedWidth;
+                    cropRect.size.height += changedHeight;
+                    if (cropRect.size.width < kMinimumCropAreaSide) {
+                        cropRect.size.width = kMinimumCropAreaSide;
                     }
-                    if (newCropLayerHeight < kMinimumCropAreaSide) {
-                        newCropLayerHeight = kMinimumCropAreaSide;
+                    if (cropRect.size.height < kMinimumCropAreaSide) {
+                        cropRect.size.height = kMinimumCropAreaSide;
                     }
-                    
-                    newCropLayerOrigin.x = newCropLayerOrigin.x + xPannedDistance;
                     break;
                 }
-            
-                case BCCropCornerTypeLowerRight: {
-                    
-                    newCropLayerWidth = newCropLayerWidth + xPannedDistance;
-                    newCropLayerHeight = newCropLayerHeight + yPannedDistance;
-                    
-                    if (newCropLayerWidth < kMinimumCropAreaSide) {
-                        newCropLayerWidth = kMinimumCropAreaSide;
+                case BCCropCornerTypeLowerLeft:
+                {
+                    cropRect.size.width -= changedWidth;
+                    cropRect.size.height += changedHeight;
+                    if (cropRect.size.width < kMinimumCropAreaSide) {
+                        cropRect.size.width = kMinimumCropAreaSide;
+                        changedWidth = _cropLayer.frame.size.width - kMinimumCropAreaSide;
                     }
-                    if (newCropLayerHeight < kMinimumCropAreaSide) {
-                        newCropLayerHeight = kMinimumCropAreaSide;
+                    if (cropRect.size.height < kMinimumCropAreaSide) {
+                        cropRect.size.height = kMinimumCropAreaSide;
                     }
-                    
+                    cropRect.origin.x += changedWidth;
                     break;
                 }
-                    
-                default: {
+                case BCCropCornerTypeNone:
                     break;
-                }
             }
             
             [CATransaction begin];
             [CATransaction setDisableActions:YES];
-            _cropLayer.frame = CGRectMake(newCropLayerOrigin.x, newCropLayerOrigin.y, newCropLayerWidth, newCropLayerHeight);
+            _cropLayer.frame = cropRect;
             [CATransaction commit];
             lastLocation = location;
         }
@@ -450,14 +420,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
             CGFloat deltaHeight = location.y - lastImageLayerPosition.y;
             CGPoint newPosition = _imageLayer.position;
             
-            if(![self IsIntersectedCropLayer:CGPointMake(deltaWidth, 0) isCropResizing:NO] && ![self IsInsideCropLayer:CGPointMake(deltaWidth, 0)])
+            if([self IsImagePanningPossibleAtX:deltaWidth])
             {
-                newPosition.x = newPosition.x + deltaWidth;
+                newPosition.x += deltaWidth;
             }
             
-            if(![self IsIntersectedCropLayer:CGPointMake(0, deltaHeight) isCropResizing:NO] && ![self IsInsideCropLayer:CGPointMake(0, deltaHeight)])
+            if([self IsImagePanningPossibleAtX:deltaHeight])
             {
-                newPosition.y = newPosition.y + deltaHeight;
+                newPosition.y += deltaHeight;
             }
 
             [CATransaction begin];
@@ -478,6 +448,113 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         }
         cropCornerSelected = NO;
     }
+}
+
+- (BOOL)IsCropCornerPanningPossibleAtX:(CGFloat)xDiff
+{
+    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+
+    CGRect nextCropRect = _cropLayer.frame;
+    switch (selectedCropCorner) {
+        case BCCropCornerTypeUpperLeft:
+        case BCCropCornerTypeLowerLeft:
+        {
+            nextCropRect.origin.x += xDiff;
+            break;
+        }
+        case BCCropCornerTypeUpperRight:
+        case BCCropCornerTypeLowerRight:
+        {
+            nextCropRect.size.width += xDiff;
+            break;
+        }
+        case BCCropCornerTypeNone:
+            break;
+    }
+    
+    bool topLeftIntersects = LineIntersectsRect(topLeft, topRight, nextCropRect);
+    bool topRightIntersects = LineIntersectsRect(topRight, bottomRight, nextCropRect);
+    bool bottomLeftIntersects = LineIntersectsRect(bottomRight, bottomLeft, nextCropRect);
+    bool bottomRightIntersects = LineIntersectsRect(bottomLeft, topLeft, nextCropRect);
+    
+    return (!topLeftIntersects && !topRightIntersects && !bottomRightIntersects && !bottomLeftIntersects);
+}
+
+- (BOOL)IsCropCornerPanningPossibleAtY:(CGFloat)yDiff
+{
+    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+    
+    CGRect nextCropRect = _cropLayer.frame;
+    switch (selectedCropCorner) {
+        case BCCropCornerTypeUpperLeft:
+        case BCCropCornerTypeUpperRight:
+        {
+            nextCropRect.origin.y += yDiff;
+            break;
+        }
+        case BCCropCornerTypeLowerLeft:
+        case BCCropCornerTypeLowerRight:
+        {
+            nextCropRect.size.height += yDiff;
+            break;
+        }
+        case BCCropCornerTypeNone:
+            break;
+    }
+    
+    bool topLeftIntersects = LineIntersectsRect(topLeft, topRight, nextCropRect);
+    bool topRightIntersects = LineIntersectsRect(topRight, bottomRight, nextCropRect);
+    bool bottomLeftIntersects = LineIntersectsRect(bottomRight, bottomLeft, nextCropRect);
+    bool bottomRightIntersects = LineIntersectsRect(bottomLeft, topLeft, nextCropRect);
+    
+    return (!topLeftIntersects && !topRightIntersects && !bottomRightIntersects && !bottomLeftIntersects);
+}
+
+
+- (BOOL)IsImagePanningPossibleAtX:(CGFloat)xDiff
+{
+    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+    
+    CGPoint nextTopLeft = CGPointMake(topLeft.x + xDiff, topLeft.y);
+    CGPoint nextTopRight = CGPointMake(topRight.x + xDiff, topRight.y);
+    CGPoint nextBottomLeft = CGPointMake(bottomLeft.x + xDiff, bottomLeft.y);
+    CGPoint nextBottomRight = CGPointMake(bottomRight.x + xDiff, bottomRight.y);
+    
+    bool topLeftIntersects = LineIntersectsRect(nextTopLeft, nextTopRight, _cropLayer.frame);
+    bool topRightIntersects = LineIntersectsRect(nextTopRight, nextBottomRight, _cropLayer.frame);
+    bool bottomLeftIntersects = LineIntersectsRect(nextBottomRight, nextBottomLeft, _cropLayer.frame);
+    bool bottomRightIntersects = LineIntersectsRect(nextBottomLeft, nextTopLeft, _cropLayer.frame);
+    
+    return (!topLeftIntersects && !topRightIntersects && !bottomRightIntersects && !bottomLeftIntersects);
+}
+
+- (BOOL)IsImagePanningPossibleAtY:(CGFloat)yDiff
+{
+    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+    
+    CGPoint nextTopLeft = CGPointMake(topLeft.x, topLeft.y + yDiff);
+    CGPoint nextTopRight = CGPointMake(topRight.x, topRight.y + yDiff);
+    CGPoint nextBottomLeft = CGPointMake(bottomLeft.x, bottomLeft.y + yDiff);
+    CGPoint nextBottomRight = CGPointMake(bottomRight.x, bottomRight.y + yDiff);
+    
+    bool topLeftIntersects = LineIntersectsRect(nextTopLeft, nextTopRight, _cropLayer.frame);
+    bool topRightIntersects = LineIntersectsRect(nextTopRight, nextBottomRight, _cropLayer.frame);
+    bool bottomLeftIntersects = LineIntersectsRect(nextBottomRight, nextBottomLeft, _cropLayer.frame);
+    bool bottomRightIntersects = LineIntersectsRect(nextBottomLeft, nextTopLeft, _cropLayer.frame);
+    
+    return (!topLeftIntersects && !topRightIntersects && !bottomRightIntersects && !bottomLeftIntersects);
 }
 
 - (void)pinchGestureApplied:(UIPinchGestureRecognizer *)sender
@@ -526,19 +603,37 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
         case UIGestureRecognizerStateCancelled:
         {
             pinchState = sender.state;
-            if([self IsIntersectedCropLayer:CGPointZero isCropResizing:NO] && [self IsInsideCropLayer:CGPointZero])
+            CGAffineTransform scaleTransform = [self getScaleTransform];
+            CGPoint poinstArray[] = {imageBottomLeftPoint, imageTopLeftPoint, imageTopRightPoint, imageBottomRightPoint};
+            CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
+            smallestRect = CGRectIntegral(CGRectApplyAffineTransform(smallestRect, scaleTransform));
+            smallestRect = CGRectApplyAffineTransform(smallestRect, _imageLayer.affineTransform);
+            UIBezierPath *tempBezierPath = [UIBezierPath bezierPathWithCGPath:bezierPathForShapeLayer.CGPath];
+            [tempBezierPath applyTransform:scaleTransform];
+            CGRect boundingBox = CGPathGetBoundingBox(tempBezierPath.CGPath);
+            boundingBox = CGRectApplyAffineTransform(boundingBox, _imageLayer.affineTransform);
+            CGFloat widthDiff = (boundingBox.size.width - smallestRect.size.width) / 2.0;
+            CGFloat heightDiff = (boundingBox.size.height - smallestRect.size.height) / 2.0;
+            smallestRect = [shapeLayer convertRect:smallestRect toLayer:self.layer];
+            widthDiff = 0;
+            heightDiff = 0;
+            CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+            CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+            CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+            CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+            
+            bool topLeftIntersects = LineIntersectsRect(topLeft, topRight, _cropLayer.frame);
+            bool topRightIntersects = LineIntersectsRect(topRight, bottomRight, _cropLayer.frame);
+            bool bottomLeftIntersects = LineIntersectsRect(bottomRight, bottomLeft, _cropLayer.frame);
+            bool bottomRightIntersects = LineIntersectsRect(bottomLeft, topLeft, _cropLayer.frame);
+            
+            if(topLeftIntersects || topRightIntersects || bottomRightIntersects || bottomLeftIntersects)
             {
                 CGPoint center = _cropLayer.position;
-
-                CGAffineTransform scaleTransform = [self getScaleTransform];
-                CGPoint poinstArray[] = {imageBottomLeftPoint, imageTopLeftPoint, imageTopRightPoint, imageBottomRightPoint};
-                CGRect smallestRect = CGRectSmallestWithCGPoints(poinstArray, 4);
-                smallestRect = CGRectIntegral(CGRectApplyAffineTransform(smallestRect, scaleTransform));
-                _cropLayer.geometryFlipped = YES;
-                if(CGRectContainsRect(_cropLayer.bounds, CGRectMake(0, 0, smallestRect.size.width, smallestRect.size.height)))
+                if((topRightIntersects && bottomRightIntersects) || (topLeftIntersects && bottomLeftIntersects))
                 {
-                    CGFloat width = fabs(cos(rotationAngle)) * _cropLayer.frame.size.width + fabs(sin(rotationAngle)) * _cropLayer.frame.size.height;
-                    CGFloat height = fabs(sin(rotationAngle)) * _cropLayer.frame.size.width + fabs(cos(rotationAngle)) * _cropLayer.frame.size.height;
+                    CGFloat width = fabs(cos(rotationAngle)) * (_cropLayer.frame.size.width + widthDiff) + fabs(sin(rotationAngle)) * (_cropLayer.frame.size.height) + heightDiff;
+                    CGFloat height = fabs(sin(rotationAngle)) * (_cropLayer.frame.size.width + widthDiff) + fabs(cos(rotationAngle)) * (_cropLayer.frame.size.height) + heightDiff;
                     if(_inputImage.size.width > _inputImage.size.height)
                         width = _inputImage.size.width / _inputImage.size.height * height;
                     else
@@ -552,7 +647,6 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                     _fitImageFrame = newBounds;
                     [self resetShapeLayerPath];
                     [CATransaction commit];
-
                 }
 
                 [CATransaction begin];
@@ -562,6 +656,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 [self resetShapeLayerPath];
                 [CATransaction commit];
             }
+
             zoomScale = sender.scale;
             sender.scale = 1.0;
             _lastFitImageFrame = _fitImageFrame;
@@ -578,12 +673,47 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     }
 }
 
+bool LineIntersectsLine(CGPoint l1p1, CGPoint l1p2, CGPoint l2p1, CGPoint l2p2)
+{
+    CGFloat q = (l1p1.y - l2p1.y) * (l2p2.x - l2p1.x) - (l1p1.x - l2p1.x) * (l2p2.y - l2p1.y);
+    CGFloat d = (l1p2.x - l1p1.x) * (l2p2.y - l2p1.y) - (l1p2.y - l1p1.y) * (l2p2.x - l2p1.x);
+
+    if( d == 0 )
+    {
+        return false;
+    }
+
+    float r = q / d;
+
+    q = (l1p1.y - l2p1.y) * (l1p2.x - l1p1.x) - (l1p1.x - l2p1.x) * (l1p2.y - l1p1.y);
+    float s = q / d;
+
+    if( r < 0 || r > 1 || s < 0 || s > 1 )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool LineIntersectsRect(CGPoint p1, CGPoint p2, CGRect r)
+{
+    CGPoint topLeftPoint = r.origin;
+    CGPoint topRightPoint = CGPointMake(CGRectGetMaxX(r), r.origin.y);
+    CGPoint bottomRightPoint = CGPointMake(CGRectGetMaxX(r), CGRectGetMaxY(r));
+    CGPoint bottomLeftPoint = CGPointMake(r.origin.x, CGRectGetMaxY(r));
+    
+    return LineIntersectsLine(p1, p2, topLeftPoint, topRightPoint) ||
+    LineIntersectsLine(p1, p2, topRightPoint, bottomRightPoint) ||
+    LineIntersectsLine(p1, p2, bottomRightPoint, bottomLeftPoint) ||
+    LineIntersectsLine(p1, p2, bottomLeftPoint, topLeftPoint) ||
+    (CGRectContainsPoint(r, p1) && CGRectContainsPoint(r, p2));
+}
+
 - (CGPoint)getCurrentImageLayerAnchorPoint {
     
     CGPoint cropLayerCenter = CGPointMake(CGRectGetMidX(_cropLayer.frame), CGRectGetMidY(_cropLayer.frame));
-    CGPoint imageLayerCurrentZoomCenter = [_imageLayerContainerLayer convertPoint:cropLayerCenter toLayer:_imageLayer];
-    
-    return CGPointMake(imageLayerCurrentZoomCenter.x / _imageLayer.frame.size.width, imageLayerCurrentZoomCenter.y / _imageLayer.frame.size.height);
+    return CGPointMake(cropLayerCenter.x / _imageLayer.frame.size.width, cropLayerCenter.y / _imageLayer.frame.size.height);
 }
 
 - (CGRect)calculateImageLayerScaledFrame:(CGRect)frame scale:(CGFloat)scale anchorPoint:(CGPoint)anchor {
@@ -649,15 +779,14 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
     
     //Zoom in/out with respect to current crop center
     CGPoint cropLayerCenter = CGPointMake(CGRectGetMidX(previousCropLayerFrame), CGRectGetMidY(previousCropLayerFrame));
-    CGPoint imageLayerCurrentZoomCenter = [_imageLayerContainerLayer convertPoint:cropLayerCenter toLayer:_imageLayer];
     
-    imageLayerCurrentAnchorPosition = CGPointMake(imageLayerCurrentZoomCenter.x / _imageLayer.frame.size.width, imageLayerCurrentZoomCenter.y / _imageLayer.frame.size.height);
+    imageLayerCurrentAnchorPosition = CGPointMake(cropLayerCenter.x / _imageLayer.frame.size.width, cropLayerCenter.y / _imageLayer.frame.size.height);
     
     CGRect scaledImageLayerFrame = [self calculateImageLayerScaledFrame:_imageLayer.frame scale:scale anchorPoint:imageLayerCurrentAnchorPosition];
     
     //Move it to center relative to previous crop frame
     CGPoint scaledImageLayerZoomCenter = CGPointMake(imageLayerCurrentAnchorPosition.x * scaledImageLayerFrame.size.width, imageLayerCurrentAnchorPosition.y * scaledImageLayerFrame.size.height);
-    CGPoint imageLayerContainerLayerCenter = CGPointMake(CGRectGetMidX(_imageLayerContainerLayer.bounds), CGRectGetMidY(_imageLayerContainerLayer.bounds));
+    CGPoint imageLayerContainerLayerCenter = _imageLayer.position;
     CGFloat centerXoffset = scaledImageLayerZoomCenter.x - CGRectGetMidX(scaledImageLayerFrame);
     CGFloat centerYoffset = scaledImageLayerZoomCenter.y - CGRectGetMidY(scaledImageLayerFrame);
     
@@ -954,62 +1083,6 @@ CGRect CGRectSmallestWithCGPoints(CGPoint pointsArray[], int numberOfPoints)
     [self applySkewInImage:_inputImage];
 }
 
-- (BOOL)IsInsideCropLayer:(CGPoint)nextPoint
-{
-    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
-    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
-    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
-    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
-
-    topLeft = [shapeLayer convertPoint:topLeft toLayer:_imageLayerContainerLayer];
-    topRight = [shapeLayer convertPoint:topRight toLayer:_imageLayerContainerLayer];
-    bottomRight = [shapeLayer convertPoint:bottomRight toLayer:_imageLayerContainerLayer];
-    bottomLeft = [shapeLayer convertPoint:bottomLeft toLayer:_imageLayerContainerLayer];
-    
-    UIBezierPath *bezierPathShape = [[UIBezierPath alloc] init];
-    [bezierPathShape moveToPoint:bottomLeft];
-    [bezierPathShape addLineToPoint:topLeft];
-    [bezierPathShape addLineToPoint:topRight];
-    [bezierPathShape addLineToPoint:bottomRight];
-    [bezierPathShape closePath];
-    [bezierPathShape applyTransform:CGAffineTransformTranslate(CGAffineTransformIdentity, nextPoint.x, nextPoint.y)];
-    
-    UIBezierPath *bezierPathCrop = [UIBezierPath bezierPathWithRect:CGRectInset(_cropLayer.frame, 1, 1)];
-    
-    NSMutableArray *shapePoints = [NSMutableArray array];
-    NSMutableArray *cropPoints = [NSMutableArray array];
-
-    CGPathApply(bezierPathShape.CGPath, (__bridge void *)shapePoints, getPointsFromBezier);
-    CGPathApply(bezierPathCrop.CGPath, (__bridge void *)cropPoints, getPointsFromBezier);
-    bool result =  true;
-    for (int i = 0; i < shapePoints.count ; i++) {
-        CGPoint point = [cropPoints[i] CGPointValue];
-        result = [bezierPathShape containsPoint:point];
-        if(!result) break;
-    }
-    return !result;
-}
-
-static inline void getPointsFromBezier(void *info, const CGPathElement *element) {
-    NSMutableArray *bezierPoints = (__bridge NSMutableArray *)info;
-    CGPathElementType type = element->type;
-    CGPoint *points = element->points;
-    if (type != kCGPathElementCloseSubpath){
-        if ((type == kCGPathElementAddLineToPoint) ||
-            (type == kCGPathElementMoveToPoint))
-            [bezierPoints addObject:[NSValue valueWithCGPoint:points[0]]];
-        else if (type == kCGPathElementAddQuadCurveToPoint) {
-            [bezierPoints addObject:[NSValue valueWithCGPoint:points[0]]];
-            [bezierPoints addObject:[NSValue valueWithCGPoint:points[1]]];
-        }
-        else if (type == kCGPathElementAddCurveToPoint) {
-            [bezierPoints addObject:[NSValue valueWithCGPoint:points[0]]];
-            [bezierPoints addObject:[NSValue valueWithCGPoint:points[1]]];
-            [bezierPoints addObject:[NSValue valueWithCGPoint:points[2]]];
-        }
-    }
-}
-
 - (BOOL)IsIntersectedCropLayer:(CGPoint)newPoint isCropResizing:(BOOL)isCropResizing
 {
     BOOL bRet = NO;
@@ -1161,28 +1234,24 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
     CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
     CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
     
-    topLeft = [shapeLayer convertPoint:topLeft toLayer:_imageLayerContainerLayer];
     if (!isCropResizing) {
     topLeft.x = topLeft.x + translation.x;
     topLeft.y = topLeft.y + translation.y;
     }
     [shapePoints addObject:[NSValue valueWithCGPoint:topLeft]];
     
-    topRight = [shapeLayer convertPoint:topRight toLayer:_imageLayerContainerLayer];
     if (!isCropResizing) {
     topRight.x = topRight.x + translation.x;
     topRight.y = topRight.y + translation.y;
     }
     [shapePoints addObject:[NSValue valueWithCGPoint:topRight]];
     
-    bottomRight = [shapeLayer convertPoint:bottomRight toLayer:_imageLayerContainerLayer];
     if (!isCropResizing) {
     bottomRight.x = bottomRight.x + translation.x;
     bottomRight.y = bottomRight.y + translation.y;
     }
     [shapePoints addObject:[NSValue valueWithCGPoint:bottomRight]];
     
-    bottomLeft = [shapeLayer convertPoint:bottomLeft toLayer:_imageLayerContainerLayer];
     if (!isCropResizing) {
     bottomLeft.x = bottomLeft.x + translation.x;
     bottomLeft.y = bottomLeft.y + translation.y;
@@ -1246,6 +1315,7 @@ static inline void getPointsFromBezier(void *info, const CGPathElement *element)
 -(CGPoint)converPointFromLayertoImage:(CGPoint)inputPoint{
     CGAffineTransform scaleTransform = [self getScaleTransform];
     CGPoint convertedPoint = CGPointApplyAffineTransform(inputPoint, scaleTransform);
+    convertedPoint = [shapeLayer convertPoint:convertedPoint toLayer:self.layer];
     return convertedPoint;
 }
 
