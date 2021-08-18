@@ -425,7 +425,7 @@ CG_INLINE CGFloat CGAffineTransformGetAngle(CGAffineTransform t) {
                 newPosition.x += deltaWidth;
             }
             
-            if([self IsImagePanningPossibleAtX:deltaHeight])
+            if([self IsImagePanningPossibleAtY:deltaHeight])
             {
                 newPosition.y += deltaHeight;
             }
@@ -844,7 +844,7 @@ bool LineIntersectsRect(CGPoint p1, CGPoint p2, CGRect r)
 
     rotationAngle = radian;
 
-    if([self IsIntersectedCropLayer:CGPointZero isCropResizing:NO])
+    if([self ShouldResizeForRotation])
     {
         // position scroll view
         CGAffineTransform scaleTransform = [self getScaleTransform];
@@ -885,19 +885,21 @@ bool LineIntersectsRect(CGPoint p1, CGPoint p2, CGRect r)
         [self resetShapeLayerPath];
         [CATransaction commit];
     }
+}
 
-//    [CATransaction begin];
-//    [CATransaction setDisableActions:YES];
-//    _imageLayer.anchorPoint = imageLayerCurrentAnchorPosition;
-//    shapeLayer.anchorPoint = imageLayerCurrentAnchorPosition;
-//    _imageLayer.affineTransform = rotateTransform;
-//    shapeLayer.affineTransform = rotateTransform;
-//    _imageLayer.anchorPoint = CGPointMake(0.5, 0.5);
-//    shapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
-//    if([self IsIntersectedCropLayer:CGPointZero])
-//        [self resizeImageLayerOnDemand];
-//    [CATransaction commit];
-
+- (BOOL)ShouldResizeForRotation
+{
+    CGPoint topLeft = [self converPointFromLayertoImage:imageTopLeftPoint];
+    CGPoint topRight = [self converPointFromLayertoImage:imageTopRightPoint];
+    CGPoint bottomRight = [self converPointFromLayertoImage:imageBottomRightPoint];
+    CGPoint bottomLeft = [self converPointFromLayertoImage:imageBottomLeftPoint];
+    
+    bool topLeftIntersects = LineIntersectsRect(topLeft, topRight, _cropLayer.frame);
+    bool topRightIntersects = LineIntersectsRect(topRight, bottomRight, _cropLayer.frame);
+    bool bottomLeftIntersects = LineIntersectsRect(bottomRight, bottomLeft, _cropLayer.frame);
+    bool bottomRightIntersects = LineIntersectsRect(bottomLeft, topLeft, _cropLayer.frame);
+    
+    return (topLeftIntersects || topRightIntersects || bottomRightIntersects || bottomLeftIntersects);
 }
 
 - (void)applySkewInImage:(UIImage *)image
